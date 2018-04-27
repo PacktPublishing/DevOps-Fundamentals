@@ -1,0 +1,11 @@
+[@ui.bambooSection titleKey='buildExpiry.heading' descriptionKey='buildExpiry.plan.description' ]
+[@s.checkbox labelKey='buildExpiry.config.plan.enable' name='custom.buildExpiryConfig.enabled' toggle='true'/]
+
+    [@ui.bambooSection dependsOn='custom.buildExpiryConfig.enabled' showOn='true']
+        [@s.checkbox labelKey='buildExpiry.enable.type.nothing' name='custom.buildExpiryConfig.expiryTypeNothing' toggle='true' /]
+        [@ui.bambooSection dependsOn='custom.buildExpiryConfig.expiryTypeNothing' showOn='false']
+            [#assign fieldPrefix = "custom.buildExpiryConfig"/]
+            [#include "/admin/build/editBuildExpiryForm.ftl"  /]
+        [/@ui.bambooSection]
+    [/@ui.bambooSection]
+[/@ui.bambooSection]

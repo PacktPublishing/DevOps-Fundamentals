@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:plugin="http://atlassian.com/schema/spring/plugin"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://atlassian.com/schema/spring/plugin http://atlassian.com/schema/spring/plugin.xsd">
+
+
+  <bean id="errorHandler" class="com.atlassian.bamboo.logger.DefaultErrorHandler" lazy-init="true" plugin:available="true">
+    <constructor-arg ref="eventPublisher"/>
+    <constructor-arg ref="agentContext"/>
+  </bean>
+  <alias name="errorHandler" alias="errorUpdateHandler"/>
+  <alias name="errorHandler" alias="errorAccessor"/>
+
+  <bean id="decoratingErrorAccessor" class="com.atlassian.bamboo.logger.DecoratingErrorAccessorImpl" plugin:available="true">
+    <constructor-arg ref="decoratedErrorDetailsFactory"/>
+    <constructor-arg ref="errorAccessor"/>
+  </bean>
+
+  <bean id="decoratingAggregatedChainErrorAccessor" class="com.atlassian.bamboo.logger.DecoratingErrorAccessorImpl" plugin:available="true">
+    <constructor-arg ref="decoratedErrorDetailsFactory"/>
+    <constructor-arg>
+      <bean class="com.atlassian.bamboo.logger.AggregatedChainErrorAccessor">
+        <constructor-arg ref="cachedPlanManager"/>
+        <constructor-arg ref="errorAccessor"/>
+        <constructor-arg ref="resultsSummaryManager"/>
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <bean id="decoratedErrorDetailsFactory" class="com.atlassian.bamboo.logger.DecoratedErrorDetailsFactory">
+    <constructor-arg ref="agentManager"/>
+    <constructor-arg ref="cachedPlanManager"/>
+    <constructor-arg ref="resultsSummaryManager"/>
+    <constructor-arg ref="repositoryDefinitionManager"/>
+  </bean>
+
+  <bean id="adminErrorHandler" class="com.atlassian.bamboo.logger.AdminErrorHandlerImpl" lazy-init="true">
+  </bean>
+
+  <bean id="exceptionTranslator" class="com.atlassian.bamboo.ww2.actions.error.ExceptionTranslatorImpl" lazy-init="true" plugin:available="true">
+  </bean>
+
+  <bean id="htmlUtils" class="com.atlassian.bamboo.util.HtmlUtils">
+  </bean>
+
+
+  <bean id="cookieCutter" class="com.atlassian.bamboo.build.CookieCutterImpl" plugin:available="true">
+  </bean>
+
+  <bean id="capabilityHelper" class="com.atlassian.bamboo.v2.build.agent.capability.CapabilityHelperImpl" plugin:available="true">
+    <constructor-arg ref="pluginAccessor"/>
+  </bean>
+
+  <bean id="planConfigurationUIPluginHelper" class="com.atlassian.bamboo.plugin.web.PlanConfigurationPluginUIHelperImpl">
+    <constructor-arg ref="pluginAccessor"/>
+  </bean>
+
+  <bean id="systemStatisticsBean" class="com.atlassian.bamboo.configuration.DefaultSystemStatisticsBean" lazy-init="true" scope="prototype">
+    <constructor-arg ref="indexerManager"/>
+    <constructor-arg ref="planManager"/>
+    <constructor-arg ref="resultsSummaryManager"/>
+  </bean>
+
+  <bean id="secretEncryptionServiceInternal" class="com.atlassian.bamboo.crypto.instance.SecretEncryptionServiceInternalImpl" lazy-init="true"/>
+  <bean id="secretEncryptionService" class="com.atlassian.bamboo.crypto.instance.SecretEncryptionServiceImpl" plugin:available="true"/>
+
+  <bean id="buildExpiryBean" class="com.atlassian.bamboo.build.expiry.BuildExpiryBeanImpl" plugin:available="true">
+    <constructor-arg ref="resultsSummaryManager"/>
+    <constructor-arg ref="planManager"/>
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+    <constructor-arg ref="repositoryDefinitionManager"/>
+    <constructor-arg ref="errorUpdateHandler"/>
+    <constructor-arg ref="bandanaManager"/>
+    <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+  </bean>
+
+  <bean id="filterController" class="com.atlassian.bamboo.build.FilterController">
+  </bean>
+
+  <bean id="templateRenderer" class="com.atlassian.bamboo.ww2.BambooFreemarkerManager" plugin:available="true">
+    <property name="homeLocator" ref="homeLocator"/>
+    <property name="pluginAccessor" ref="pluginAccessor"/>
+    <property name="i18nBeanFactory" ref="i18nBeanFactory"/>
+    <property name="osgiServiceProxyFactory" ref="osgiServiceProxyFactory"/>
+  </bean>
+
+  <bean id="freemarkerPluginCacheInvalidator" class="com.atlassian.bamboo.ww2.FreemarkerPluginCacheInvalidator">
+    <constructor-arg ref="pluginEventManager"/>
+    <constructor-arg ref="templateRenderer"/>
+  </bean>
+
+  <bean id="bambooMailer" class="com.atlassian.bamboo.mail.BambooMailer">
+    <property name="templateRenderer" ref="templateRenderer"/>
+  </bean>
+
+  <bean id="resettableHiLoGeneratorHelper" class="com.atlassian.bamboo.migration.utils.BambooResetableHiLoGeneratorHelper"/>
+
+  <!-- An abstract template for a class requiring transactions for -->
+  <bean id="txWriteProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" abstract="true">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="transactionAttributes">
+      <props>
+        <prop key="*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="artifactManager" class="com.atlassian.bamboo.build.artifact.LocalArtifactManager" plugin:available="true" />
+
+  <bean id="artifactLinkManager" class="com.atlassian.bamboo.build.artifact.DefaultArtifactLinkManager" plugin:available="true">
+    <constructor-arg ref="artifactLinkDao"/>
+    <constructor-arg ref="artifactDao"/>
+    <constructor-arg ref="artifactManager"/>
+    <constructor-arg ref="pluginAccessor"/>
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+  </bean>
+
+  <bean id="buildLogFileAccessorFactory" class="com.atlassian.bamboo.build.logger.BuildLogFileAccessorFactoryImpl" plugin:available="true"/>
+
+  <bean id="availableBulkActions" class="org.springframework.beans.factory.config.ListFactoryBean">
+    <property name="sourceList">
+      <list>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.AddNotificationBulkAction">
+          <constructor-arg ref="planManager"/>
+          <constructor-arg ref="notificationManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.DeleteAllNotificationBulkAction">
+          <constructor-arg ref="planManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.repository.UpdateSvnUrlBulkAction">
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.repository.UpdateSvnCredentialsBulkAction">
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.repository.UpdateCvsRootCredentialsBulkAction">
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.repository.UpdateCvsModuleBulkAction">
+          <constructor-arg ref="repositoryManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.repository.UpdateWebUrlBulkAction">
+          <constructor-arg ref="webRepositoryViewerManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.ManualBuildBulkAction">
+          <constructor-arg ref="planManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.DisablePlanBulkAction">
+          <constructor-arg ref="planManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.EnablePlanBulkAction">
+          <constructor-arg ref="planManager"/>
+        </bean>
+        <bean class="com.atlassian.bamboo.ww2.actions.admin.bulk.trigger.ReplaceTriggersBulkAction" />
+      </list>
+    </property>
+  </bean>
+
+  <!-- Cleanup helper class used by BambooContainer on start up -->
+  <bean id="pendingBuildResultsStateRestoration" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.container.startup.PendingBuildResultsStateRestorationImpl">
+        <constructor-arg ref="resultsSummaryManager"/>
+        <constructor-arg ref="currentlyBuildingContainer"/>
+        <constructor-arg ref="chainExecutionManager"/>
+        <constructor-arg ref="buildExecutionManager"/>
+        <constructor-arg ref="eventPublisher"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="shutdownEnforcer" class="com.atlassian.bamboo.container.ShutdownEnforcer" destroy-method="destroy"/>
+
+  <bean id="rememberMeConfiguration" class="com.atlassian.seraph.service.rememberme.DefaultRememberMeConfiguration"/>
+
+  <bean id="homeDirectoryLayout" class="com.atlassian.bamboo.setup.HomeDirectoryLayoutImpl" plugin:available="true"/>
+
+  <bean id="storageTagService" class="com.atlassian.bamboo.storage.location.StorageTagServiceImpl" />
+
+  <bean id="contextArtifactHelperService" class="com.atlassian.bamboo.artifact.CommonContextHelperServiceImpl" plugin:available="true">
+    <constructor-arg ref="storageTagService"/>
+  </bean>
+
+  <bean id="defaultArtifactDirectoryBuilder" factory-bean="artifactPathBuilderFactory" factory-method="createDefaultArtifactDirectoryBuilder" />
+
+  <bean id="xworkConfigMaintainer" class="com.atlassian.bamboo.plugin.xwork.XWorkPluginConfigurationMaintainer">
+    <constructor-arg ref="pluginEventManager"/>
+  </bean>
+
+  <bean id="timingPointService" class="com.atlassian.bamboo.v2.build.timing.TimingPointServiceImpl" plugin:available="true">
+    <constructor-arg ref="eventPublisher"/>
+  </bean>
+
+  <bean id="executionPhaseService" class="com.atlassian.bamboo.execution.ExecutionPhaseServiceImpl">
+    <constructor-arg ref="timingPointService"/>
+  </bean>
+
+  <bean id="diskUsageManager" class="com.atlassian.bamboo.storage.DiskUsageManagerImpl"/>
+  <bean id="storageCappingService" class="com.atlassian.bamboo.storage.StorageCappingServiceImpl" plugin:available="true"/>
+  <bean id="trustedKeyService" class="com.atlassian.bamboo.security.TrustedKeyServiceImpl" plugin:available="true"/>
+  <bean id="trustedKeyHelper" class="com.atlassian.bamboo.security.ServerTrustedKeyHelperImpl" plugin:available="true"/>
+
+  <bean id="conversationCacheService" class="com.atlassian.bamboo.caching.conversation.ConversationStorageServiceImpl">
+    <constructor-arg ref="expiryTicker"/>
+  </bean>
+
+  <bean id="mauService" class="com.atlassian.bamboo.analytics.MauServiceImpl" plugin:available="true" scope="singleton">
+    <constructor-arg ref="eventPublisher"/>
+    <constructor-arg ref="bambooUserManager"/>
+    <constructor-arg ref="authorDao"/>
+  </bean>
+
+  <bean name="repositoryStoredSpecsLogService" class="com.atlassian.bamboo.configuration.external.RepositoryStoredSpecsLogServiceImpl" plugin:available="true">
+    <constructor-arg ref="bootstrapManager" />
+    <constructor-arg ref="resultsSummaryManager" />
+  </bean>
+</beans>

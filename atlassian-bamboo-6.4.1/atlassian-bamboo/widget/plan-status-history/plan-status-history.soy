@@ -1,0 +1,202 @@
+{namespace bamboo.widget.planStatusHistory}
+
+/**
+ * Container with JS initialisation
+ * @param id
+ * @param bootstrap - array of builds in JSON format
+ * @param? currentBuildNumber - number of the build that is currently selected (user is on that build result)
+ * @param? firstBuildNumber - number of the first build
+ * @param? lastBuildNumber - number of the last build
+ * @param planKey - plan key to fetch build results for
+ * @param keyToNavigate - job or plan key used in determining the navigation redirects
+ * @param returnUrl - string containing the current url (or whatever our redirect thing is able to parse and munge into a new url)
+ */
+{template .container}
+<div id="{$id}">
+</div>
+
+<script type="text/javascript">
+    require(['jquery', 'widget/plan-status-history'], function($, PlanStatusHistory){lb}
+        return new PlanStatusHistory({lb}
+            el: $('#{$id}'),
+            planKey: '{$planKey}',
+            buildNumber: {($currentBuildNumber ? $currentBuildNumber : 'null')},
+            bootstrap: {$bootstrap|noAutoescape},
+            returnUrl: '{$returnUrl|noAutoescape}',
+            keyToNavigate: '{$keyToNavigate}',
+            firstBuildNumber: {($firstBuildNumber ? $firstBuildNumber : 'null')},
+            lastBuildNumber: {($lastBuildNumber ? $lastBuildNumber : 'null')}
+        {rb});
+    {rb});
+</script>
+{/template}
+
+/**
+ * Navigator
+ * @param builds - array of builds
+ * @param? currentBuildNumber - number of the build that is currently selected (user is on that build result)
+ * @param? firstBuildNumber - number of the first build
+ * @param? minVisibleBuildNumber - minimum visible build number
+ * @param? showRightArrow - is maxVisibleBuildNumber right behind last active?
+ * @param keyToNavigate - job or plan key used in determining the navigation redirects
+ * @param returnUrl - string containing the current url (or whatever our redirect thing is able to parse and munge into a new url)
+*/
+{template .navigator}
+    {if length($builds) > 0}
+        {call aui.icons.icon}
+            {param icon: 'wait' /}
+            {param useIconFont: false /}
+            {param size: 'small' /}
+            {param extraClasses: 'spinner previous' /}
+        {/call}
+        {if $minVisibleBuildNumber and $minVisibleBuildNumber > $firstBuildNumber}
+            <a class="button previous" title="{getText('historynavigator.previous')}" accesskey="{getText('global.key.back')}">
+                {call aui.icons.icon}
+                    {param icon: 'down' /}
+                    {param useIconFont: true /}
+                    {param size: 'small' /}
+                    {param extraClasses: 'left' /}
+                {/call}
+            </a>
+        {else}
+            <span class="button previous disabled">
+            {call aui.icons.icon}
+                {param icon: 'down' /}
+                {param useIconFont: true /}
+                {param size: 'small' /}
+                {param extraClasses: 'left' /}
+            {/call}
+            </span>
+        {/if}
+        <ol>
+            {foreach $build in $builds}
+                {call .item data="$build"}
+                    {param href: contextPath() + ($currentBuildNumber ? '/build/result/gotoBuildResult.action?buildKey=' + $keyToNavigate + '&buildNumber=' + $build.buildNumber + '&returnUrl=' + $returnUrl : '/browse/' + $build.planKey + '-' + $build.buildNumber) /}
+                    {param isCurrent: ($currentBuildNumber and $currentBuildNumber == $build.buildNumber) /}
+                {/call}
+            {/foreach}
+        </ol>
+        
+        {if $showRightArrow}
+            <a class="button next" title="{getText('historynavigator.next')}" accesskey="{getText('global.key.next')}">
+                {call aui.icons.icon}
+                    {param icon: 'up' /}
+                    {param useIconFont: true /}
+                    {param size: 'small' /}
+                    {param extraClasses: 'right' /}
+                {/call}
+            </a>
+        {else}
+            <span class="button next disabled">
+            {call aui.icons.icon}
+                {param icon: 'up' /}
+                {param useIconFont: true /}
+                {param size: 'small' /}
+                {param extraClasses: 'right' /}
+            {/call}
+            </span>
+        {/if}
+        {call aui.icons.icon}
+            {param icon: 'wait' /}
+            {param useIconFont: false /}
+            {param size: 'small' /}
+            {param extraClasses: 'spinner next' /}
+        {/call}
+    {else}
+        <p>{getText('historynavigator.noData')}</p>
+    {/if}
+{/template}
+
+/**
+ * Inline dialog
+ * @param buildStatus
+ * @param buildNumber
+ * @param buildStatusDescription
+ * @param triggerHtml - pre-encoded HTML describing the trigger for this build
+ * @param hasFailed
+ * @param? specsFailure
+ * @param? specsSuccess
+ * @param? onceOff
+ * @param? rebuild
+ * @param? customBuild
+ * @param existingFailuresText
+ * @param newFailuresText
+ */
+{template .buildDialog}
+    <div>
+        {call widget.icons.statusIcon}
+            {param status: $specsFailure ? 'SpecsFailure' : ($specsSuccess ? 'SpecsSuccess' : $buildStatus) /}
+            {param text: '#' + $buildNumber + ' (' + $buildStatusDescription + ')' /}
+        {/call}
+
+        <strong>#{$buildNumber}</strong>
+
+        {if $onceOff}
+            {call widget.lozenges.lozenge}
+                {param color: 'complete' /}
+                {param text: getText('buildResult.flags.customRevision') /}
+            {/call}
+        {/if}
+        {if $rebuild}
+            {call widget.lozenges.lozenge}
+                {param color: 'moved' /}
+                {param text: getText('buildResult.flags.rebuild') /}
+            {/call}
+        {/if}
+        {if $customBuild}
+            {call widget.lozenges.lozenge}
+                {param color: 'current' /}
+                {param text: getText('buildResult.flags.customBuild') /}
+            {/call}
+        {/if}
+
+        <p>{$triggerHtml|noAutoescape}</p>
+        {if $hasFailed and not $specsFailure}
+            {if $existingFailuresText}
+                <p>{$existingFailuresText}</p>
+            {/if}
+            {if $newFailuresText}
+                <p>{$newFailuresText}</p>
+            {/if}
+            {if not ($existingFailuresText or $newFailuresText)}
+                <p>{getText('buildResult.tests.dialog.noTestsFailed')}</p>
+            {/if}
+        {/if}
+    </div>
+{/template}
+
+/**
+ * List item for the plan status history widget
+ * @param buildNumber
+ * @param buildStatus
+ * @param buildStatusDescription
+ * @param trigger
+ * @param newFailedTestCaseCount
+ * @param existingFailedTestCaseCount
+ * @param rebuild
+ * @param onceOff
+ * @param customBuild
+ * @param href
+ * @param? specsFailure
+ * @param? specsSuccess
+ * @param? extraClasses
+ * @param? isCurrent
+*/
+{template .item}
+    <li class="{$buildStatus}{if $isCurrent} current{/if} animated{call aui.renderExtraClasses data="all" /}"
+        {sp}data-build-number="{$buildNumber}"
+        {sp}data-trigger="{$trigger}"
+        {sp}data-new-failed-test-case-count="{$newFailedTestCaseCount}"
+        {sp}data-existing-failed-test-case-count="{$existingFailedTestCaseCount}"
+        {sp}data-rebuild="{$rebuild}"
+        {sp}data-once-off="{$onceOff}"
+        {sp}data-custom-build="{$customBuild}"
+    >
+        <a href="{$href}">
+            {call widget.icons.statusIcon}
+            {param status: $specsFailure ? 'SpecsFailure' : ($specsSuccess ? 'SpecsSuccess' : $buildStatus) /}
+                {param text: '#' + $buildNumber + ' (' + $buildStatusDescription + ')' /}
+            {/call}
+        </a>
+    </li>
+{/template}

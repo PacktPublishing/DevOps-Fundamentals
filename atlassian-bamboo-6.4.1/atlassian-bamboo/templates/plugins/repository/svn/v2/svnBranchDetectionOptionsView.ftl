@@ -1,0 +1,5 @@
+[@s.checkbox labelKey='repository.svn.branch.detection.path.overridden' toggle=true name='repository.svn.branch.detection.path.overridden' disabled = true/]
+[#assign branchDetectionOverride = stack.findValue('repository.svn.branch.detection.path.overridden')!true/]
+[#if branchDetectionOverride]
+    [@s.textfield labelKey='repository.svn.branch.detection.path' name='repository.svn.branch.detection.path' cssClass="long-field" disabled=true/]
+[/#if]

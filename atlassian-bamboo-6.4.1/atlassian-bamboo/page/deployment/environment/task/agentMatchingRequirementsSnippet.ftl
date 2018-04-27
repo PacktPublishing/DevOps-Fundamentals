@@ -1,0 +1,5 @@
+[#-- @ftlvariable name="action" type="com.atlassian.bamboo.deployments.environments.actions.tasks.DescribeAgentAvailability" --]
+[#-- @ftlvariable name="" type="com.atlassian.bamboo.deployments.environments.actions.tasks.DescribeAgentAvailability" --]
+[#import "/agent/agentAvailability.ftl" as bd]
+[@s.url var="viewAgentsUrl" action="viewAgents" namespace="/agent" environmentId=environmentId returnUrl="/deploy/config/configureEnvironmentAgents.action?environmentId=${environmentId}" /]
+[@bd.showMatchingAgents executableAgentsMatrix=action.executableAgentsMatrix i18nSuffix="environment" viewAgentsUrl=viewAgentsUrl/]

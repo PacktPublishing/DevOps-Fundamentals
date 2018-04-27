@@ -1,0 +1,5 @@
+[#if notificationEmailString?has_content]
+    [@s.textfield key='notification.recipients.emails' value='${notificationEmailString?html}' name='notificationEmailString' /]
+[#else]
+    [@ww.textfield labelKey='notification.recipients.emails'  name='notificationEmailString' /]
+[/#if]

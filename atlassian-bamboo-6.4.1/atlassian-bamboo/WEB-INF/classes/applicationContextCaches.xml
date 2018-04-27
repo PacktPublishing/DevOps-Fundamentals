@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Spring context for caching managers and services -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:plugin="http://atlassian.com/schema/spring/plugin"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://atlassian.com/schema/spring/plugin http://atlassian.com/schema/spring/plugin.xsd">
+
+  <bean id="cachingPermissionManagerFacadeFactory" class="com.atlassian.bamboo.security.BambooCachingPermissionManagerFacadeFactoryImpl" plugin:available="true" />
+
+  <bean id="cachingPermissionManagerFacade" class="com.atlassian.bamboo.security.BambooCachingPermissionManagerFacadeImpl" parent="bambooPermissionManagerNoTx" scope="prototype">
+    <constructor-arg ref="cachedPlanManager"/>
+  </bean>
+
+  <bean id="repositoryCachingFacade" class="com.atlassian.bamboo.repository.RepositoryCachingFacadeImpl" plugin:available="true"/>
+  
+  <bean id="immutablePlanCacheService" class="com.atlassian.bamboo.plan.cache.ImmutablePlanCacheServiceImpl" plugin:available="true">
+    <constructor-arg ref="immutablePlanManager"/>
+    <constructor-arg ref="planDao"/>
+    <constructor-arg ref="hibernateConfig"/>
+    <constructor-arg ref="customVariableContext"/>
+    <constructor-arg ref="buildResultsSummaryDao"/>
+    <constructor-arg ref="vcsRepositoryManager"/>
+  </bean>
+
+  <bean id="cachedPlanManager" class="org.springframework.aop.framework.ProxyFactoryBean" plugin:available="true">
+    <property name="proxyInterfaces">
+      <list>
+        <value>com.atlassian.bamboo.plan.FilteringPlanManager</value>
+        <value>com.atlassian.bamboo.plan.cache.CachedPlanManager</value>
+      </list>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <idref bean="transactionReadOnlyInterceptor"/>
+        <idref bean="permissionsInterceptor"/>
+      </list>
+    </property>
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.cache.CachedPlanManagerImpl"/>
+    </property>
+  </bean>
+  <alias name="cachedPlanManager" alias="filteringPlanManager"/>
+
+</beans>

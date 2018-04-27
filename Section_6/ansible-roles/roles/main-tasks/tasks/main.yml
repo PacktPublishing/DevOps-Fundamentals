@@ -1,0 +1,2 @@
+---
+- debug: msg="I am the main playbook"

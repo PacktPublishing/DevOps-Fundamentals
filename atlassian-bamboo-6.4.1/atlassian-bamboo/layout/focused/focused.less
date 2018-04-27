@@ -1,0 +1,40 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+.aui-page-focused {
+    .aui-page-panel-content {
+        > h2 {
+            border-bottom: 1px solid @dividerColor;
+            padding-bottom: @baseSpacing;
+            width: 100%;
+        }
+        > .toolbar:first-child {
+            padding-top: @halfSpacing; // (h2 line-height - .toolbar line-height) / 2
+        }
+
+        h3:not(.collapsible-header){
+            margin-top: 30px;
+        }
+    }
+
+    form .buttons-container {
+        border-top: 1px solid @dividerColor;
+        padding-top: @doubleSpacing;
+    }
+
+    form .form-content-container {
+        margin-bottom: @baseSpacing;
+        
+        h3:not(.collapsible-header) {
+            margin-top: 0;
+        }
+    }
+
+    .environment-back-button {
+        border-top: 1px solid @dividerColor;
+        margin-top: @baseSpacing;
+        padding-top: @doubleSpacing;
+        position: relative;
+        width: 100%;
+    }
+}
+

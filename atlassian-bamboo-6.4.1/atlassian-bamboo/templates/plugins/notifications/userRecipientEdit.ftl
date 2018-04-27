@@ -1,0 +1,5 @@
+[#if notificationUserString?has_content]
+    [@s.textfield key='notification.recipients.users' value='${notificationUserString?html}' name='notificationUserString' template='userPicker' multiSelect=false  placeholderKey='notification.recipients.users.placeholder'/]
+[#else]
+    [@ww.textfield labelKey='notification.recipients.users' name='notificationUserString' template='userPicker'  multiSelect=false  placeholderKey='notification.recipients.users.placeholder'/]
+[/#if]

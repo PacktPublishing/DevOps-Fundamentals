@@ -1,0 +1,15 @@
+---
+- hosts: all
+ user: root
+ tasks:
+ - name: list configuration folder
+ command: ls /app/config/
+ register: contents
+ - set_fact:
+ is_config_empty: contents.stdout == ""
+ - name: check if folder is empty
+ debug: msg="config folder is empty"
+ when: is_config_empty
+ - name: installing configuration
+ command: <your command here>
+ when: is_config_empty

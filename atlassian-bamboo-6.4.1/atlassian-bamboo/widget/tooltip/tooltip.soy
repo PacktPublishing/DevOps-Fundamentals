@@ -1,0 +1,42 @@
+{namespace bamboo.widget.tooltip}
+
+/**
+ * Tooltip
+ * @param trigger - selector that should trigger the tooltip
+ * @param? content - content with which to populate the tooltip. Required if $url not specified
+ * @param? url - url of location of content to populate the tooltip. Required if $content not specified.
+ *               Should not contain contextPath
+ * @param? showDelay
+ * @param? width
+ * @param? addMarker - add marker to tooltip trigger. Default: false
+ */
+{template .tooltip}
+    <script type="text/javascript">
+        require(['aui', 'jquery', 'underscore'], function(AJS, $, _){lb}
+            var $element = $('{$trigger}');
+            AJS.InlineDialog(
+                $element, undefined
+                {if $url}
+                    ,'{contextPath()}{$url|escapeJsString}'
+                {else}
+                    ,function(content, trigger, showPopup){lb}
+                        content
+                            .css({lb}padding: '20px'{rb})
+                            .html(_.unescape('{$content}'));
+                        showPopup();
+                        return false;
+                    {rb}
+                {/if}
+                ,{lb}
+                    {if $width} width: {$width} {/if}
+                    {if $showDelay} {if $width},{/if} showDelay: {$showDelay}{/if}
+                    {if $width or $showDelay},{/if} onHover: true
+                {rb}
+            );
+
+            {if $addMarker}
+                $element.addClass('tooltip-marker');
+            {/if}
+        {rb});
+    </script>
+{/template}

@@ -1,0 +1,2 @@
+[@s.textfield labelKey='repository.svn.branch.name' name='repository.svn.branch.displayName' disabled=true/]
+[@s.textfield labelKey='repository.svn.branch' name='repository.svn.branch.path' disabled=true/]

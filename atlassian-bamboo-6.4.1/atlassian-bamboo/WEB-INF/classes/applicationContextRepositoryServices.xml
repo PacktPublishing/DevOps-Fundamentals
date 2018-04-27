@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:plugin="http://atlassian.com/schema/spring/plugin"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://atlassian.com/schema/spring/plugin http://atlassian.com/schema/spring/plugin.xsd">
+
+  <bean name="vcsRepositoryManager" class="com.atlassian.bamboo.vcs.module.VcsRepositoryManagerImpl" plugin:available="true"/>
+
+  <bean name="vcsRepositoryViewerManager" class="com.atlassian.bamboo.vcs.viewer.module.VcsRepositoryViewerManagerImpl" plugin:available="true">
+    <constructor-arg ref="pluginAccessor"/>
+    <constructor-arg ref="webRepositoryViewerManager"/>
+  </bean>
+
+  <bean id="rawRepositoryConfigurationXmlConverter" class="com.atlassian.bamboo.vcs.configuration.service.RawRepositoryConfigurationXmlConverterImpl">
+    <constructor-arg ref="xStreamFactory"/>
+  </bean>
+
+  <bean name="vcsRepositoryConfigurationService" class="com.atlassian.bamboo.vcs.configuration.service.VcsRepositoryConfigurationServiceImpl" plugin:available="true" >
+    <constructor-arg ref="repositoryDefinitionManager"/>
+    <constructor-arg ref="auditLogService"/>
+    <constructor-arg ref="aclService"/>
+    <constructor-arg ref="rawRepositoryConfigurationXmlConverter"/>
+    <constructor-arg ref="immutablePlanCacheService"/>
+    <constructor-arg ref="scopedExclusionService"/>
+    <constructor-arg ref="triggerConfigurationService"/>
+    <constructor-arg ref="taskConfigurationService"/>
+    <constructor-arg ref="chainBranchManager"/>
+    <constructor-arg ref="environmentTaskService"/>
+    <constructor-arg ref="buildDefinitionManager"/>
+    <constructor-arg ref="eventPublisher"/>
+    <constructor-arg ref="branchDetectionService"/>
+    <constructor-arg ref="vcsRepositoryManager"/>
+  </bean>
+
+  <bean id="vcsViewerUIConfigBean" class="com.atlassian.bamboo.configuration.repository.VcsViewerUIConfigBean">
+    <constructor-arg ref="vcsRepositoryViewerManager"/>
+    <constructor-arg ref="templateRenderer"/>
+  </bean>
+
+  <bean id="vcsConfigurationHelper" class="com.atlassian.bamboo.configuration.repository.VcsConfigurationHelperImpl" plugin:available="true">
+    <constructor-arg ref="vcsViewerUIConfigBean"/>
+    <constructor-arg ref="textProvider"/>
+    <constructor-arg ref="bambooPermissionManager"/>
+    <constructor-arg ref="repositoryDefinitionManager"/>
+    <constructor-arg ref="vcsRepositoryConfigurationService"/>
+  </bean>
+
+  <bean id="vcsUIConfigBean" class="com.atlassian.bamboo.configuration.repository.VcsUIConfigBean">
+    <constructor-arg ref="vcsRepositoryManager"/>
+    <constructor-arg ref="repositoryDefinitionManager"/>
+    <constructor-arg ref="templateRenderer"/>
+    <constructor-arg ref="textProvider"/>
+    <constructor-arg ref="vcsViewerUIConfigBean"/>
+    <constructor-arg ref="vcsConfigurationHelper"/>
+  </bean>
+
+  <bean id="vcsRepositoryConfigurationComparator" class="com.atlassian.bamboo.vcs.configuration.service.VcsRepositoryConfigurationComparatorImpl" plugin:available="true">
+    <constructor-arg ref="customVariableContext"/>
+  </bean>
+
+</beans>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <beans xmlns="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:plugin="http://atlassian.com/schema/spring/plugin"
+         xmlns:util="http://www.springframework.org/schema/util"
+         xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+       http://atlassian.com/schema/spring/plugin http://atlassian.com/schema/spring/plugin.xsd">
+
+  <bean id="pluginStateStore" class="com.atlassian.bamboo.plugin.BambooPluginStateStore">
+    <!-- Circular references FTW! -->
+    <constructor-arg>
+      <bean class="com.atlassian.bamboo.spring.LazyComponentProxyFactoryBean">
+        <constructor-arg value="com.atlassian.bandana.BandanaManager" />
+        <constructor-arg value="bandanaManager" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+
+  <bean id="serverCoreLoaderConfig" class="com.atlassian.bamboo.plugin.DefaultSystemPluginLoaderConfiguration">
+    <constructor-arg>
+      <bean parent="remoteCorePluginLoaders">
+        <property name="sourceList">
+          <list merge="true">
+            <bean class="com.atlassian.plugin.loaders.SinglePluginLoader"><constructor-arg value="system-local-artifact-handler-plugin.xml"/></bean>
+          </list>
+        </property>
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <bean id="bambooPluginLoaderConfig" class="com.atlassian.bamboo.plugin.DefaultSystemPluginLoaderConfiguration">
+      <constructor-arg ref="serverCoreLoaderConfig" />
+      <constructor-arg>
+          <util:list>
+              <ref bean="serverLoaderConfig" />
+              <ref bean="classPathLoaderConfig" />
+          </util:list>
+      </constructor-arg>
+  </bean>
+
+  <bean id="pluginManager" class="com.atlassian.bamboo.plugin.BambooPluginManager" plugin:available="true">
+    <constructor-arg ref="pluginStateStore"/>
+    <constructor-arg ref="bambooPluginLoaderConfig" />
+    <constructor-arg>
+      <util:list>
+        <ref bean="bundledPluginLoader"/>
+        <ref bean="directoryPluginLoader"/>
+        <ref bean="directoryScanningPluginLoader"/>
+      </util:list>
+    </constructor-arg>
+    <constructor-arg ref="moduleDescriptorFactory"/>
+    <constructor-arg ref="pluginEventManager"/>
+    <constructor-arg ref="pluginDirectory" />
+    <constructor-arg ref="pluginMetadataManager" />
+  </bean>
+
+  <alias name="pluginManager" alias="pluginAccessor"/>
+  <alias name="pluginManager" alias="pluginController"/>
+
+  <bean id="bundledPluginLoader" class="com.atlassian.bamboo.plugin.loaders.BundledPluginLoaderFactory">
+    <constructor-arg>
+      <util:list>
+        <ref bean="osgiPluginFactory"/>
+        <ref bean="osgiBundleFactory"/>
+        <ref bean="xmlDynamicPluginFactory"/>
+        <ref bean="remotablePluginFactory"/>
+      </util:list>
+    </constructor-arg>
+    <constructor-arg ref="pluginEventManager"/>
+    <constructor-arg ref="bundledPluginsAccessor"/>
+  </bean>
+
+  <bean id="moduleDescriptorFactory" class="com.atlassian.bamboo.plugin.BambooModuleDescriptorFactory">
+    <constructor-arg ref="hostContainer"/>
+    <property name="moduleDescriptors">
+      <util:map>
+        <entry key="servlet" value="com.atlassian.plugin.servlet.descriptors.ServletModuleDescriptor"/>
+        <entry key="servlet-context-param" value="com.atlassian.plugin.servlet.descriptors.ServletContextParamModuleDescriptor"/>
+        <entry key="servlet-filter" value="com.atlassian.plugin.servlet.descriptors.ServletFilterModuleDescriptor"/>
+        <entry key="servlet-context-listener" value="com.atlassian.plugin.servlet.descriptors.ServletContextListenerModuleDescriptor"/>
+        <entry key="report" value="com.atlassian.bamboo.plugin.descriptor.ReportCollectorModuleDescriptor"/>
+      </util:map>
+    </property>
+  </bean>
+
+
+  <!-- How bundled plugins zip is loaded -->
+  <bean id="bundledPluginsAccessor" class="com.atlassian.bamboo.plugin.loaders.ServerBundledPluginsAccessor">
+    <constructor-arg ref="servletContextFactory"/>
+  </bean>
+
+  <!-- Plugin transformer factory -->
+  <bean id="pluginTransformerFactory" class="com.atlassian.plugin.osgi.factory.OsgiPluginFactory$DefaultPluginTransformerFactory" />
+
+  <!-- Application links -->
+  <bean id="applinkHostApplication" class="com.atlassian.bamboo.security.applinks.BambooHostApplication" plugin:available="true" />
+
+  <!-- Bean postprocessor that registers all beans implementing ReloadableBeanFactory. Allows to reload all of them at once -->
+
+  <!-- During hotswap import plugins would reload but those beans would not.
+       Those reloadable factories allow selected beans to reload themselves.
+       For more info see com.atlassian.bamboo.osgi.ReloadableBeanFactoryImpllso BDEV-3311
+  -->
+  <bean id="reloadableBeanFactories" class="com.atlassian.bamboo.osgi.ReloadableBeanFactoriesImpl" />
+
+  <bean id="applinkEntityLink" class="com.atlassian.bamboo.osgi.ReloadableBeanFactoryImpl">
+    <constructor-arg type="java.lang.Class" value="com.atlassian.applinks.host.spring.EntityLinkServiceFactoryBean"/>
+    <constructor-arg ref="osgiContainerManager"/>
+  </bean>
+
+  <bean id="applinkAuthenticationConfigurationManager" class="com.atlassian.bamboo.osgi.ReloadableBeanFactoryImpl">
+    <constructor-arg type="java.lang.Class" value="com.atlassian.applinks.host.spring.AuthenticationConfigurationManagerFactoryBean"/>
+    <constructor-arg ref="osgiContainerManager"/>
+  </bean>
+
+  <bean id="applinkApplicationLink" class="com.atlassian.bamboo.osgi.ReloadableBeanFactoryImpl">
+    <constructor-arg type="java.lang.Class" value="com.atlassian.applinks.host.spring.ApplicationLinkServiceFactoryBean"/>
+    <constructor-arg ref="osgiContainerManager"/>
+  </bean>
+  <bean id="applinkTypeAccessor" class="com.atlassian.bamboo.osgi.ReloadableBeanFactoryImpl">
+    <constructor-arg type="java.lang.Class" value="com.atlassian.applinks.host.spring.TypeAccessorServiceFactoryBean"/>
+    <constructor-arg ref="osgiContainerManager"/>
+  </bean>
+
+  <bean id="osgiServiceProxyFactory" class="com.atlassian.bamboo.plugin.osgi.OsgiServiceProxyFactoryImpl" plugin:available="true">
+    <constructor-arg ref="pluginEventManager"/>
+    <constructor-arg ref="osgiContainerManager"/>
+    <!--todo make system property "${osgi.service.invocation.timeout}" -->
+    <constructor-arg value="10000"/>
+  </bean>
+
+  <bean id="pluginMetadataManager" class="com.atlassian.plugin.metadata.DefaultPluginMetadataManager" plugin:available="true"/>
+
+  <bean id="packageScannerConfiguration" class="com.atlassian.plugin.spring.SpringAwarePackageScannerConfiguration">
+    <constructor-arg ref="bambooVersion" />
+
+    <property name="packageIncludes">
+      <util:list>
+        <value>com.*</value>
+        <value>freemarker.*</value>
+        <value>io.*</value>
+        <value>javax.*</value>
+        <value>net.*</value>
+        <value>org.*</value>
+        <!-- Required for jenkins importer plugin. Also: BSP-8223 -->
+        <value>de.schlichtherle.truezip*</value>
+        <!-- Required for anything using Scala -->
+        <value>scala</value>
+        <value>scala.*</value>
+      </util:list>
+    </property>
+    <property name="packageExcludes">
+      <util:list>
+        <value>junit*</value>
+        <value>org.aopalliance*</value>
+        <value>org.apache.commons.logging*</value>
+        <value>org.junit*</value>
+        <value>org.objectweb*</value>
+        <value>org.springframework.*</value>
+      </util:list>
+    </property>
+    <property name="packageVersions">
+      <util:map>
+        <entry key="com.atlassian.bamboo*" value-ref="bambooVersionNumber" />
+        <entry key="com.atlassian.breadcrumbs*" value-ref="bambooVersionNumber" />
+        <entry key="com.google.common.base" value="18.0"/>
+        <entry key="com.google.common.*" value="18.0"/>
+        <entry key="javax.inject" value="1"/> <!-- original value overridden by version of org.sonatype.sisu:sisu-inject-bean -->
+        <entry key="org.apache.commons.collections.*" value="3.2.1" />
+        <entry key="org.apache.commons.logging*" value="1.1.1"/>
+        <entry key="org.apache.log4j*" value="1.2.15" />
+
+        <!-- Some classes in Bamboo are in this package so we need to enforce proper version -->
+        <entry key="com.opensymphony.xwork2*" value="2.5.10.1-atlassian-1"/>
+      </util:map>
+    </property>
+  </bean>
+
+  <!-- Specific plugin requirements -->
+
+  <bean id="webInterfaceManager" class="com.atlassian.plugin.web.DefaultWebInterfaceManager" plugin:available="true">
+    <constructor-arg ref="pluginAccessor"/>
+    <constructor-arg ref="webFragmentHelper" />
+  </bean>
+
+  <bean id="webFragmentHelper" class="com.atlassian.bamboo.plugin.web.BambooWebFragmentHelper" plugin:available="true">
+    <constructor-arg ref="i18nBeanFactory"/>
+    <constructor-arg ref="hostContainer" />
+    <constructor-arg ref="templateRenderer" />
+  </bean>
+
+  <bean id="webResourceIntegration" class="com.atlassian.bamboo.plugin.webresource.BambooWebResourceIntegration" plugin:available="true">
+    <constructor-arg value="1" /> <!-- superbatch version -->
+  </bean>
+
+  <bean id="webResourceManager" class="com.atlassian.plugin.webresource.WebResourceManagerImpl" plugin:available="true">
+    <constructor-arg ref="pluginResourceLocator" />
+    <constructor-arg ref="webResourceIntegration" />
+    <constructor-arg ref="webResourceUrlProvider" />
+    <constructor-arg ref="resourceBatchingConfiguration" />
+  </bean>
+
+  <bean id="servletModuleManager" class="com.atlassian.plugin.spring.SpringServletModuleManager" plugin:available="true">
+    <constructor-arg index="0" ref="pluginEventManager"/>
+  </bean>
+
+  <!-- Download Strategies -->
+  <bean name="bambooContentTypeResolver" class="com.atlassian.bamboo.plugin.servlet.BambooContentTypeResolver" init-method="init"/>
+
+  <bean id="pluginDownload" class="com.atlassian.plugin.webresource.servlet.PluginResourceDownload">
+    <constructor-arg index="0" ref="pluginResourceLocator"/>
+    <constructor-arg index="1" ref="bambooContentTypeResolver"/>
+    <constructor-arg index="2" ref="characterEncoding"/>
+  </bean>
+
+  <bean id="artifactDownloadStrategy" class="com.atlassian.bamboo.plugin.servlet.ArtifactDownloadStrategy">
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+    <constructor-arg ref="bambooPermissionManager"/>
+    <constructor-arg ref="authenticationContext"/>
+    <constructor-arg ref="bambooContentTypeResolver"/>
+    <constructor-arg ref="cachedPlanManager"/>
+    <constructor-arg ref="resultsSummaryManager"/>
+  </bean>
+
+  <bean id="defaultDownloadStrategy" class="com.atlassian.bamboo.plugin.servlet.DefaultDownloadStrategy">
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+    <constructor-arg ref="bambooPermissionManager"/>
+    <constructor-arg ref="authenticationContext"/>
+    <constructor-arg ref="bambooContentTypeResolver"/>
+  </bean>
+
+  <bean id="environmentArtifactDownloadStrategy" class="com.atlassian.bamboo.plugin.servlet.DeploymentDownloadStrategy">
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+    <constructor-arg ref="bambooContentTypeResolver"/>
+    <constructor-arg ref="bambooPermissionManager"/>
+    <constructor-arg ref="authenticationContext"/>
+    <constructor-arg ref="environmentService"/>
+  </bean>
+
+  <bean id="globalArtifactDownloadStrategy" class="com.atlassian.bamboo.plugin.servlet.GlobalArtifactDownloadStrategy" >
+    <constructor-arg ref="administrationConfigurationAccessor"/>
+    <constructor-arg ref="bambooPermissionManager"/>
+    <constructor-arg ref="authenticationContext"/>
+    <constructor-arg ref="artifactPermissionService"/>
+    <constructor-arg ref="bambooContentTypeResolver"/>
+  </bean>
+
+  <bean id="specLogsDownloadStrategy" class="com.atlassian.bamboo.plugin.servlet.SpecLogsDownloadStrategy" />
+
+  <bean id="downloadStrategies" class="java.util.ArrayList">
+    <constructor-arg index="0">
+      <util:list>
+        <bean class="com.atlassian.plugin.servlet.download.plugin.PluggableDownloadStrategy">
+          <constructor-arg ref="pluginEventManager"/>
+        </bean>
+        <ref bean="environmentArtifactDownloadStrategy"/>
+        <ref bean="globalArtifactDownloadStrategy"/>
+        <ref bean="artifactDownloadStrategy"/>
+        <ref bean="pluginDownload"/>
+        <ref bean="specLogsDownloadStrategy"/>
+        <ref bean="defaultDownloadStrategy"/>
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="webResourceUrlProvider" class="com.atlassian.plugin.webresource.WebResourceUrlProviderImpl" plugin:available="true">
+    <constructor-arg ref="webResourceIntegration"/>
+  </bean>
+
+  <bean id="webResourceAssemblerFactory" class="com.atlassian.plugin.webresource.assembler.DefaultWebResourceAssemblerFactory" plugin:available="true">
+    <constructor-arg ref="resourceBatchingConfiguration"/>
+    <constructor-arg ref="webResourceIntegration"/>
+    <constructor-arg ref="webResourceUrlProvider"/>
+    <constructor-arg ref="pluginResourceLocator"/>
+    <constructor-arg ref="staticTransformers"/>
+  </bean>
+
+  <bean id="pageBuilderService" class="com.atlassian.plugin.webresource.assembler.DefaultPageBuilderService" plugin:available="true">
+    <constructor-arg ref="webResourceIntegration"/>
+    <constructor-arg ref="webResourceAssemblerFactory"/>
+  </bean>
+
+  <bean id="staticTransformers" class="com.atlassian.plugin.webresource.transformer.DefaultStaticTransformers">
+    <constructor-arg ref="staticTransformersSupplier"/>
+  </bean>
+
+  <bean id="staticTransformersSupplier" class="com.atlassian.plugin.webresource.transformer.DefaultStaticTransformersSupplier">
+    <constructor-arg ref="webResourceIntegration"/>
+    <constructor-arg ref="webResourceUrlProvider"/>
+  </bean>
+
+  <bean id="pluginResourceLocator" class="com.atlassian.plugin.webresource.PluginResourceLocatorImpl" plugin:available="true">
+    <constructor-arg index="0" ref="webResourceIntegration"/>
+    <constructor-arg index="1" ref="servletContextFactory"/>
+    <constructor-arg index="2" ref="webResourceUrlProvider"/>
+    <constructor-arg index="3" ref="resourceBatchingConfiguration"/>
+    <constructor-arg index="4" ref="pluginEventManager"/>
+  </bean>
+
+  <bean id="resourceBatchingConfiguration" class="com.atlassian.bamboo.plugin.web.BambooResourceBatchingConfiguration" plugin:available="true">
+    <constructor-arg index="0">
+      <!-- contents of the superbatch - when updating bump the superbatch version in webResourceIntegration bean definition -->
+      <util:list>
+        <value>bamboo.web.resources:lib-almond</value>
+        <value>com.atlassian.plugins.jquery:jquery</value>
+      </util:list>
+    </constructor-arg>
+  </bean>
+
+  <!--
+  Ideally this should be in bamboo-plugin-sal but it depends on a bean not exported to plugins.
+  It is also the reason why:
+   - sal-spring package is in WEB-INF/lib and not bundled in bamboo-plugin-sal.
+   - sal-spi package is in WEB-INF/lib and not bundled in bamboo-bundled-plugins.
+  -->
+  <bean id="hostContextAccessor" class="com.atlassian.sal.spring.component.SpringHostContextAccessor" plugin:available="true">
+    <constructor-arg ref="transactionManager"/>
+  </bean>
+
+  <bean id="hostConnectionAccessor" class="com.atlassian.sal.spring.connection.SpringHostConnectionAccessor" plugin:available="true">
+    <constructor-arg>
+      <bean class="com.atlassian.bamboo.sal.SessionFactoryConnectionProvider"/>
+    </constructor-arg>
+    <constructor-arg ref="transactionManager"/>
+  </bean>
+
+  <bean id="remoteAgentPluginEventForwarder" class="com.atlassian.bamboo.plugin.events.RemoteAgentPluginEventForwarder">
+    <constructor-arg ref="eventPublisher"/>
+    <constructor-arg ref="pluginEventManager"/>
+    <constructor-arg ref="agentPluginResolver"/>
+  </bean>
+
+  <bean id="agentPluginResolver" class="com.atlassian.bamboo.plugin.DefaultAgentPluginResolver">
+      <constructor-arg ref="pluginAccessor"/>
+      <constructor-arg ref="pluginMetadataManager"/>
+  </bean>
+
+  <bean id="clusterLockService" class="com.atlassian.beehive.simple.SimpleClusterLockService" plugin:available="true" />
+
+  <bean id="frameworkBundlesDirectoryAccessor" class="com.atlassian.bamboo.plugin.osgi.FrameworkBundlesDirectoryAccessorImpl"/>
+  <bean id="frameworkBundlesResolver" class="com.atlassian.bamboo.plugin.osgi.FrameworkBundlesResolverImpl"/>
+
+</beans>

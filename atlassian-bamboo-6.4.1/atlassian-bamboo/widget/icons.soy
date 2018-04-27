@@ -1,0 +1,76 @@
+{namespace widget.icons}
+
+/**
+* @param type - a string containing the icon type (eg. "failed") which will be prefixed with "icon-"
+* @param? text - a string to be inserted inside the icon span, which will be hidden using CSS
+* @param? showTitle - a boolean indicating whether the title attribute should be added to the icon
+*/
+{template .icon}
+    <span class="icon icon-{$type}"{if $text and $showTitle} title="{$text}"{/if}>{if $text}<span>{$text}</span>{/if}</span>
+{/template}
+
+/**
+* @param type - a string containing the icon type (eg. "failed") which will be prefixed with "icon-"
+* @param? text - a string to be inserted inside the icon span, which will be hidden using CSS
+* @param? showTitle - a boolean indicating whether the title attribute should be added to the icon
+*/
+{template .fontIcon}
+    <span class="aui-icon aui-icon-small aui-iconfont-{$type}"{if $text and $showTitle} title="{$text}"{/if}>{if $text}<span>{$text}</span>{/if}</span>
+{/template}
+
+/**
+* @param iconType - a string containing the icon type (eg. "failed") which will be prefixed with "aui-iconfont--"
+* @param relativeUrl - relativeUrl, without the context path
+* @param? text - a string to be inserted inside the icon span & title, which will be hidden using CSS
+*/
+{template .auiFontLink}
+    <a {if $text} title="{$text}" {/if}
+       href="{contextPath() + $relativeUrl}">
+        <span class="aui-icon aui-icon-small aui-iconfont-{$iconType}">{if $text}{$text}{/if}</span>
+    </a>
+{/template}
+
+/**
+ * @param status
+ * @param? text
+ * @param? reversed
+*/
+{template .statusIcon}
+    {if $status == 'approve' or $status == 'project-success' or $status == 'Successful' or $status == 'SUCCESS' or $status == 'successful'}
+        {call .fontIcon data="all"}
+            {param type: 'approve' /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {elseif $status == 'error' or $status == 'project-fail' or $status == 'Failed' or $status == 'FAILED' or $status == 'failed'}
+        {call .fontIcon data="all"}
+            {param type: 'error' /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {elseif $status == 'task-cancelled' or $status == 'NotBuilt' or $status == 'notbuilt' or $status == 'NOT_BUILT' or $status == 'Unknown' or $status == 'UNKNOWN' or $status == 'unknown'}
+        {call .fontIcon}
+            {param type: 'devtools-task-cancelled' /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {elseif $status == 'task-in-progress' or $status == 'Pending' or $status == 'PENDING' or $status == 'pending' or $status == 'Queued' or $status == 'QUEUED' or $status == 'queued'}
+        {call .fontIcon data="all"}
+            {param type: 'devtools-task-in-progress' /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {elseif $status == 'task-disabled' or $status == 'disabled' or $status == 'project-none' or $status == 'NeverExecuted' or $status == 'skipped' or $status == 'Suspended'}
+        {call .fontIcon data="all"}
+            {param type: 'devtools-task-disabled' /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {else}
+        {call widget.icons.icon}
+            {param type: $status + ($reversed ? ' icon-reversed' : '') /}
+            {param text: $text /}
+            {param showTitle: $text ? true : false /}
+        {/call}
+    {/if}
+{/template}

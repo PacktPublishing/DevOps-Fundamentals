@@ -1,0 +1,5 @@
+---
+- hosts: all
+  user: root
+  tasks:
+  - debug: msg="I am a play include"

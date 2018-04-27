@@ -1,0 +1,3 @@
+---
+- debug: msg="I am a task include"
+- debug: msg="I am a task include again"

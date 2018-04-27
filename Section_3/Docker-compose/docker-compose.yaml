@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  my_app:
+    build: .
+    depends_on:
+      - db
+  db:
+    image: postgres
+
+
+

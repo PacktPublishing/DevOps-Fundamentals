@@ -1,0 +1,12 @@
+---
+- hosts: all
+  user: root
+  tasks:
+    - name: update sources
+      apt:
+        update_cache: yes
+      
+    - name: upgrade all packages
+      apt:
+        upgrade: dist
+

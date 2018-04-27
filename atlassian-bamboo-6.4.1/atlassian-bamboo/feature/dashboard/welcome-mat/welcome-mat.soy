@@ -1,0 +1,159 @@
+{namespace bamboo.feature.dashboard.welcomeMat}
+
+/**
+ * Welcome Mat
+ * @param? hasUser
+ * @param? canCreatePlan
+ * @param? hasAdminPermission
+ */
+{template .welcomeMat}
+    {call .welcomeMessage}
+        {param showCreate: $canCreatePlan /}
+        {param showImport: $hasAdminPermission /}
+        {param showLogin: (not $hasUser) /}
+        {param showSignup: (not $hasUser) /}
+        {param showContactAdmin: $hasUser and (not $canCreatePlan) /}
+        {param content}
+            {if $hasUser and (not $canCreatePlan)}
+                {call aui.message.info}
+                    {param titleContent: getText('welcome.noPermission.title') /}
+                    {param content}
+                        <p>{getTextAsHtml('welcome.noPermission', contextPath() + '/viewAdministrators.action')}</p>
+                    {/param}
+                {/call}
+            {/if}
+        {/param}
+    {/call}
+{/template}
+
+/**
+ * Welcome Message with optional action items (Create Plan, Import, Login, Signup, Setup EC2, etc)
+ * @param? showLogin
+ * @param? showSignup
+ * @param? showCreate
+ * @param? showImport
+ * @param? showContactAdmin
+ * @param? content
+ */
+{template .welcomeMessage}
+    <div class="welcome-message build">
+        <div class="welcome-content">
+            <h2 class="welcome-title">{getText('welcome.title')}</h2>
+            <div class="welcome-blurb">
+                <p>{getText('welcome.blurb')}</p>
+                <p>{getText('welcome.blurb.continue')}</p>
+                {if $content and $content != ''}{$content|noAutoescape}{/if}
+            </div>
+            {if $showContactAdmin or $showCreate or $showImport or $showLogin or $showSignup}
+                {call aui.toolbar2.toolbar2}
+                    {param extraClasses: 'welcome-actions' /}
+                    {param content}
+                        {call aui.toolbar2.item}
+                            {param item: 'primary' /}
+                            {param content}
+                                {if $showContactAdmin}
+                                    {call aui.buttons.button}
+                                        {param text: getText('welcome.buttons.contactadmin') /}
+                                        {param type: 'primary' /}
+                                        {param tagName: 'a' /}
+                                        {param extraClasses: 'aui-style' /} // hack - needed until we use ADG
+                                        {param extraAttributes: [ 'href': contextPath() + '/viewAdministrators.action' ] /}
+                                    {/call}
+                                {/if}
+                                {if $showCreate or $showImport}
+                                    {if $showCreate}
+                                        {call aui.buttons.button}
+                                            {param text: getText('welcome.buttons.createplan') /}
+                                            {param type: ($showContactAdmin ? '' : 'primary') /}
+                                            {param tagName: 'a' /}
+                                            {param id: 'create-a-plan' /}
+                                            {param extraClasses: 'aui-style' /} // hack - needed until we use ADG
+                                            {param extraAttributes: [ 'href': contextPath() + '/build/admin/create/newPlan.action' ] /}
+                                        {/call}
+                                    {/if}
+                                {elseif $showLogin or $showSignup}
+                                    {if $showLogin}
+                                        {call aui.buttons.button}
+                                            {param text: getText('bamboo.banner.login') /}
+                                            {param type: 'primary' /}
+                                            {param tagName: 'a' /}
+                                            {param extraClasses: 'aui-style' /} // hack - needed until we use ADG
+                                            {param extraAttributes: [ 'href': contextPath() + '/userlogin!doDefault.action' ] /}
+                                        {/call}
+                                    {/if}
+                                    {if $showSignup}
+                                        {call aui.buttons.button}
+                                            {param text: getText('bamboo.banner.signup') /}
+                                            {param tagName: 'a' /}
+                                            {param extraClasses: 'aui-style' /} // hack - needed until we use ADG
+                                            {param extraAttributes: [ 'href': contextPath() + '/signupUser!doDefault.action' ] /}
+                                        {/call}
+                                    {/if}
+                                {/if}
+                            {/param}
+                        {/call}
+                    {/param}
+                {/call}
+            {/if}
+        </div>
+    </div>
+{/template}
+/**
+ * Welcome Message for deployments
+ * @param? hasGlobalCreatePermission
+ * @param? hasBuilds
+ */
+{template .welcomeMessageDeploy}
+    <div class="welcome-message deployment">
+        <div class="welcome-content">
+            <h2 class="welcome-title">{getText('deployment.welcome.title')} </h2>
+            <div class="welcome-blurb">
+                {getTextAsHtml('deployment.welcome.message')}
+                {if $hasBuilds}
+                    <p>{getText('deployment.welcome.message.start')}
+                        {if $hasGlobalCreatePermission}
+                            <p>
+                                {call aui.buttons.button}
+                                    {param text: getText('deployment.welcome.create.first') /}
+                                    {param type: 'primary' /}
+                                    {param tagName: 'a' /}
+                                    {param extraAttributes: [ 'href': contextPath() + '/deploy/config/newDeploymentProjectDetails.action' ] /}
+                                {/call}
+                            </p>
+                        {/if}
+                    </p>
+                {else}
+                    <p>
+                        {getTextAsHtml('deployment.welcome.nobuilds', contextPath() + '/build/admin/create/newPlan.action')}
+                    </p>
+                {/if}
+            </div>
+        </div>
+    </div>
+    <div class="infographic">
+        <h2>{getText('deployment.help.how')}</h2>
+
+        <img src="{contextPath()}/images/infographic/bamboo-deploy.png" />
+        <div class="artifactText">
+            <h3>{getText('deployment.help.artifact')}</h3>
+            {getText('deployment.help.artifact.text')}
+        </div>
+        <div class="versionText">
+            <h3>{getText('deployment.help.version')}</h3>
+            {getText('deployment.help.version.text')}
+        </div>
+        <div class="environmentText">
+            <h3>{getText('deployment.help.environment')}</h3>
+            {getText('deployment.help.environment.text')}
+        </div>
+    </div>
+{/template}
+
+/**
+ * Import Options Item
+ * @param text
+ * @param? href
+ */
+{template .importOptionsItem private="true"}
+    <li><a{if $href} href="{$href}"{/if}>{$text}</a></li>
+{/template}

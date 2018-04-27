@@ -1,0 +1,27 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+.select2-results {
+    .aui-iconfont-devtools-branch {
+        color: @secondaryTextColor;
+    }
+
+    .autocomplete-metadata {
+        color: @secondaryTextColor;
+        font-style: italic;
+        position: absolute;
+        right: 5px;
+    }
+}
+
+.select2-highlighted {
+    .aui-iconfont-devtools-branch {
+        color: @globalHeaderActiveLinkTextColor;
+    }
+}
+
+.aui-select2-drop.aui-dropdown2 {
+    &.aui-style-default a {
+        display: inline;
+        padding: 0px;
+    }
+}

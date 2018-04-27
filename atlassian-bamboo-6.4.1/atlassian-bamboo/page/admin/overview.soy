@@ -1,0 +1,82 @@
+{namespace bamboo.page.admin.overview}
+
+/**
+ * Admin Overview
+ * @param? hasGlobalAdminPermission
+ * @param? canManageElasticBamboo
+ * @param? hasBuilders
+ * @param? hasJdks
+ * @param? buildersSize
+ * @param? isAllowedRemoteAgents
+ */
+{template .overview}
+    {let $viewServerCapabilities: contextPath() + '/admin/agent/configureSharedLocalCapabilities.action' /}
+    {call .welcomeItems}
+        {param content}
+            {call .welcomeItem}
+                {param content: getText('admin.overview.update.config', contextPath() + '/admin/globalConfiguration.action') /}
+            {/call}
+            {if $hasGlobalAdminPermission}
+                {if not $hasBuilders and not $hasJdks}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.jdksnbuilders.neither', $viewServerCapabilities) /}
+                    {/call}
+                {elseif not $hasBuilders}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.jdksnbuilders.jdks', $viewServerCapabilities) /}
+                    {/call}
+                {elseif not $hasJdks}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.jdksnbuilders.builders', $viewServerCapabilities, ($buildersSize ? $buildersSize : 0)) /}
+                    {/call}
+                {else}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.jdksnbuilders.both', $viewServerCapabilities, ($buildersSize ? $buildersSize : 0)) /}
+                    {/call}
+                {/if}
+                {call .welcomeItem}
+                    {param content: getText('admin.overview.communication', contextPath() + '/admin/viewMailServer.action', contextPath() + '/admin/instantmessagingserver/viewInstantMessagingServer.action') /}
+                {/call}
+            {/if}
+            {if not $isAllowedRemoteAgents}
+                {call .welcomeItem}
+                    {param content: getText('admin.overview.agents.local', contextPath() + '/admin/agent/configureAgents!doDefault.action') /}
+                {/call}
+            {else}
+                {if $canManageElasticBamboo}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.agents.other', contextPath() + '/admin/agent/configureAgents!doDefault.action', contextPath() + '/admin/elastic/viewElasticConfig.action') /}
+                    {/call}
+                {else}
+                    {call .welcomeItem}
+                        {param content: getText('admin.overview.agents.other.noEc2', contextPath() + '/admin/agent/configureAgents!doDefault.action') /}
+                    {/call}
+                {/if}
+            {/if}
+            {call .welcomeItem}
+                {param content: getText('admin.overview.usersetc', contextPath() + '/admin/user/viewUsers.action', contextPath() + '/admin/group/viewGroups.action', contextPath() + '/admin/configureGlobalPermissions.action') /}
+            {/call}
+            {call .welcomeItem}
+                {param content: getText('admin.overview.plan.config.all', contextPath() + '/admin/buildExpiry!read.action', contextPath() + '/admin/deleteBuilds.action', contextPath() + '/admin/chooseBuildsToBulkEditPermissions.action') /}
+            {/call}
+        {/param}
+    {/call}
+{/template}
+
+/**
+ * Next Steps
+ * @param content
+ */
+{template .welcomeItems}
+    {if $content != ''}
+        <ul>{$content|noAutoescape}</ul>
+    {/if}
+{/template}
+
+/**
+ * Next Steps Item
+ * @param content
+ */
+{template .welcomeItem}
+    <li>{$content|noAutoescape}</li>
+{/template}

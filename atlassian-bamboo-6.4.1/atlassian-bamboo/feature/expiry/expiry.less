@@ -1,0 +1,39 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+#deploymentExpiryWarning {
+    #enableDeploymentExpiry {
+        margin-top: @baseSpacing;
+    }
+
+    &.aui-message.warning {
+        margin-top: @doubleSpacing;
+        margin-bottom: @doubleSpacing;
+
+        a {
+            margin-left: @halfSpacing;
+        }
+    }
+}
+
+#buildExpiryForm fieldset {
+    margin-top: @baseSpacing;
+
+    &:last-child {
+        margin-bottom: @doubleSpacing;
+    }
+}
+
+#viewExpiryPanel .form-view {
+    margin-top: @doubleSpacing;
+    margin-bottom: @doubleSpacing;
+    overflow: auto;
+
+    label {
+        left: auto;
+        margin-right: auto;
+    }
+
+    .field-value {
+        font-weight: normal;
+    }
+}

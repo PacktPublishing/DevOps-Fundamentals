@@ -1,0 +1,11 @@
+---
+- hosts: all
+  user: root
+  tasks:
+  - command: /bin/false
+    register: result
+    ignore_errors: True
+  - debug: msg="fail!"
+    when: result|failed
+  - debug: msg="success!"
+    when: result|succeeded

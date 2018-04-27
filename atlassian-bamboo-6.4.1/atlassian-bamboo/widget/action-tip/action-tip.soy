@@ -1,0 +1,11 @@
+{namespace bamboo.widget.actionTip}
+
+/**
+ * Builds inline-dialog content
+ * @param content
+ * @param label
+ */
+{template .dialog}
+    <p>{$content|noAutoescape}</p>
+    <button class="aui-button action-tip-trigger">{$label}</button>
+{/template}

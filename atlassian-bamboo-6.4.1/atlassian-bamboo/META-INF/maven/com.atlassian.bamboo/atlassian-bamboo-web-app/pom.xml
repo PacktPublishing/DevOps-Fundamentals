@@ -1,0 +1,1036 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.atlassian.bamboo</groupId>
+    <artifactId>atlassian-bamboo-components</artifactId>
+    <version>6.4.1</version>
+  </parent>
+
+  <artifactId>atlassian-bamboo-web-app</artifactId>
+  <packaging>war</packaging>
+
+  <name>Atlassian Bamboo Web Application</name>
+
+  <properties>
+    <pluginBundleDirectory>target/bundled-plugins</pluginBundleDirectory>
+    <source.setup.aui.target.directory>${project.basedir}/src/main/webapp/layout/setup</source.setup.aui.target.directory>
+    <source.bower.directory>${project.basedir}/src/main/webapp/bower</source.bower.directory>
+
+    <!-- default hibernate properties overridden by DB proeprties-->
+    <hibernate.connection.driver_class>org.h2.Driver</hibernate.connection.driver_class>
+    <hibernate.connection.username>sa</hibernate.connection.username>
+    <hibernate.connection.password/>
+    <hibernate.dialect>com.atlassian.bamboo.hibernate.H2NoClobDialect</hibernate.dialect>
+    <hibernate.connection.url>jdbc:h2:mem:h2db</hibernate.connection.url>
+
+    <exploded.war.root>${project.build.directory}/${project.artifactId}</exploded.war.root>
+
+    <!-- serialization whitelist/blacklist properties -->
+
+    <classlist.resources.directory>${project.build.resources[0].directory}</classlist.resources.directory>
+    <classlist.target.directory>${exploded.war.root}/WEB-INF/classes</classlist.target.directory>
+    <whitelist.file.name>serialization-whitelist.list</whitelist.file.name>
+    <blacklist.file.name>serialization-blacklist.list</blacklist.file.name>
+    <bundledPluginsGavFile>atlassian-bamboo-bundled-plugins.artifacts</bundledPluginsGavFile>
+  </properties>
+
+  <dependencies>
+
+    <!-- Module dependencies -->
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-deployments</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-import-export</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-test-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+        this dependency should not be needed however tests are failing without it
+        the reason is that atlassian-bamboo-agent-elastic-s3-bucket is pulling all bundled plugins into test scope
+        see BDEV-10867
+    -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-plugins1-plugins</artifactId>
+      <type>pom</type>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-agent-elastic-s3-bucket</artifactId>
+      <type>aws</type>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-bundled-plugins</artifactId>
+      <type>txt</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Ensure that atlassian-bamboo-agent-installer isn't added twice but is still built before -->
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>atlassian-bamboo-agent-installer</artifactId>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.atlassian.bamboo</groupId>
+          <artifactId>bamboo-agent-bootstrap</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Ensure that bamboo-agent isn't added twice but is still built before -->
+    <dependency>
+      <groupId>com.atlassian.bamboo</groupId>
+      <artifactId>bamboo-agent</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--Currently required on the class path, by crowd + other plugins that use REST-->
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+    </dependency>
+
+    <!--another hack for weird mvn bug - testtools with test scope excludes this-->
+    <dependency>
+      <groupId>dom4j</groupId>
+      <artifactId>dom4j</artifactId>
+    </dependency>
+
+    <!-- hamcrest-core is provided by hamcrest-all but we still need it here to avoid including both packages-->
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+
+    <dependency>
+      <!-- we don't want commons-logging in the WAR, OSGi will use jcl-over-slf4j -->
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.security.auth.trustedapps</groupId>
+      <artifactId>atlassian-trusted-apps-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.atlassian.plugins</groupId>
+      <artifactId>atlassian-plugins-webresource</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.igniterealtime.smack</groupId>
+      <artifactId>smack-java7</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- PostgreSQL JDBC driver -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- MS SQL JDBC Driver -->
+    <dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- MySQL JDBC Driver -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Oracle JDBC Driver -->
+    <dependency>
+      <groupId>com.oracle.jdbc</groupId>
+      <artifactId>ojdbc8</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- JDBC logger -->
+    <dependency>
+      <groupId>org.bgee.log4jdbc-log4j2</groupId>
+      <artifactId>log4jdbc-log4j2-jdbc4</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <useCache>true</useCache>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>prepare-war</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>exploded</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/com/atlassian/bamboo/hibernate/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <!-- Plugin for packaging the agent jars-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>extract-agent-installers</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.atlassian.bamboo</groupId>
+                  <artifactId>atlassian-bamboo-bundled-plugins</artifactId>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <destFileName>${bundledPluginsGavFile}</destFileName>
+                  <type>txt</type>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.atlassian.bamboo</groupId>
+                  <artifactId>atlassian-bamboo-agent-installer</artifactId>
+                  <outputDirectory>${exploded.war.root}/admin/agent</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.atlassian.bamboo</groupId>
+                  <artifactId>bamboo-agent</artifactId>
+                  <outputDirectory>${exploded.war.root}/admin/agent</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.atlassian.bamboo</groupId>
+                  <artifactId>atlassian-bamboo-agent-installer</artifactId>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                  <destFileName>agent-installer.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <!-- unpack AUI sources for setup (we're unpacking to source directory so IDEA can pick them when running Bamboo from IDE -->
+          <execution>
+            <id>unpack-aui-flatpack</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <!-- if output path of this artifact changes do not forget to update maven-clean-plugin configuration below -->
+                <artifactItem>
+                  <groupId>com.atlassian.aui</groupId>
+                  <artifactId>aui-flat-pack</artifactId>
+                  <type>zip</type>
+                  <outputDirectory>${source.setup.aui.target.directory}</outputDirectory>
+                  <includes>aui/css/**,aui/js/**</includes>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <!-- unpack OSGi framework bundle -->
+          <execution>
+            <id>extract-framework-bundles</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.atlassian.plugins</groupId>
+                  <artifactId>atlassian-plugins-framework-bundles</artifactId>
+                  <type>zip</type>
+                  <classifier>${plug.classifier.override}</classifier>
+                  <outputDirectory>${exploded.war.root}/WEB-INF/framework-bundles</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-framework-bundles-dependencies</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <!-- exports org.apache.commons.logging -->
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>jcl-over-slf4j</artifactId>
+                  <outputDirectory>${exploded.war.root}/WEB-INF/framework-bundles</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>include-aws</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeTypes>aws</includeTypes>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-svnkit</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.tmatesoft.svnkit</groupId>
+                  <artifactId>svnkit-cli</artifactId>
+                  <version>${svnkit.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${exploded.war.root}/repositoryScripts/lib</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <!-- unpack bamboo-specs-pom.xml -->
+          <execution>
+            <id>copy-bamboo-specs-pom</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.atlassian.bamboo</groupId>
+                  <artifactId>atlassian-bamboo-import-export</artifactId>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                  <includes>bamboo-specs-pom.xml</includes>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <!-- unpack third-party resource for setup (we're unpacking to source directory so IDEA can pick them when running Bamboo from IDE -->
+          <execution>
+            <id>copy-setup-resources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${source.setup.aui.target.directory}/lib</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${source.bower.directory}/jquery</directory>
+                </resource>
+                <resource>
+                  <directory>${source.bower.directory}/almond</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+
+          <!-- copy generated whitelist file to resources directory -->
+          <!-- (blacklist is only created for developer analysis, not used by Bamboo, so ignore it) -->
+          <execution>
+            <id>copy-classlist-to-target</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${classlist.resources.directory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${classlist.target.directory}</directory>
+                  <includes>
+                    <include>${whitelist.file.name}</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${source.setup.aui.target.directory}/aui</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>com.atlassian.lesscss</groupId>
+        <artifactId>lesscss-maven-plugin</artifactId>
+        <version>${atlassian.less.transformer.version}</version>
+        <configuration>
+          <plugins>
+            <plugin>
+              <groupId>com.atlassian.bamboo.plugins</groupId>
+              <artifactId>atlassian-bamboo-plugin-web-resources</artifactId>
+              <version>${project.version}</version>
+            </plugin>
+          </plugins>
+          <!-- IDEA uses stuff from /src-->
+          <outputDirectory>${project.basedir}/src/main/webapp</outputDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>compile-less</id>
+            <phase>prepare-package</phase> <!-- cannot be run before test phase in a multimodule build -->
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-banned-dependencies-servlet-spec</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <searchTransitive>false</searchTransitive>
+                  <excludes>
+                    <exclude>javax.servlet</exclude>
+                    <exclude>javax.servlet.jsp</exclude>
+                  </excludes>
+                  <includes>
+                    <include>javax.servlet:javax.servlet-api:*:*:provided</include>
+                    <include>javax.servlet.jsp:*:*:*:provided</include>
+                  </includes>
+                  <message>See Servlet Spec 3.0, section 10.7.2.</message>
+                </bannedDependencies>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+
+          <!-- verify whitelist files exist in target directory and project resources after packaging -->
+          <!-- (check that they were successfully generated & copied by this project's plugins or were manually created) -->
+          <!-- (either way they are needed for Bamboo to work correctly) -->
+          <execution>
+            <id>enforce-classlist-files-exist</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <requireFilesExist>
+                  <files>
+                    <file>${classlist.target.directory}/${whitelist.file.name}</file>
+                    <file>${classlist.resources.directory}/${whitelist.file.name}</file>
+                  </files>
+                  <message>Serialization whitelist files are missing after packaging. To fix the issue please recompile Bamboo with 'generate-classlist' profile. Note that this is only needed once, additional builds will not require re-generating of the class list.</message>
+                </requireFilesExist>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- for ftl-s to be copied to test-classes and be seen in tests -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!--<plugin>-->
+        <!--<groupId>pl.project13.maven</groupId>-->
+        <!--<artifactId>git-commit-id-plugin</artifactId>-->
+        <!--<configuration>-->
+          <!--<generateGitPropertiesFilename>${webapp.directory}/META-INF/git.properties</generateGitPropertiesFilename>-->
+        <!--</configuration>-->
+      <!--</plugin>-->
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sql-maven-plugin</artifactId>
+        <configuration>
+          <!-- Don't drop and create databases unless required. -->
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>smartass-maven-plugin</artifactId>
+        <version>2.1.1</version>
+        <executions>
+          <execution>
+            <id>copy-bundled-plugins</id>
+            <phase>prepare-package</phase> <!-- normally, this would be process-resources. But this plugin cannot run in multimodule test phase, it needs jars -->
+            <goals>
+              <goal>copy-listed-artifacts</goal>
+            </goals>
+            <configuration>
+              <sourceList>${project.build.directory}/${bundledPluginsGavFile}</sourceList>
+              <targetDirectory>${exploded.war.root}/WEB-INF/atlassian-bundled-plugins</targetDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- generate black/whitelist of class names for serialization -->
+      <plugin>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>bamboo-classlist-generator-maven-plugin</artifactId>
+        <configuration>
+          <inputDirectories>
+            <inputDirectory>${exploded.war.root}/WEB-INF/atlassian-bundled-plugins</inputDirectory>
+            <inputDirectory>${exploded.war.root}/WEB-INF/framework-bundles</inputDirectory>
+            <inputDirectory>${exploded.war.root}/WEB-INF/lib</inputDirectory>
+          </inputDirectories>
+          <exclusions>
+            <exclusion>**/atlassian-universal-plugin-manager-plugin*jar</exclusion>
+          </exclusions>
+          <whitelistFile>${classlist.target.directory}/${whitelist.file.name}</whitelistFile>
+          <blacklistFile>${classlist.target.directory}/${blacklist.file.name}</blacklistFile>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- Profile for running spring hibernate tests -->
+    <profile>
+      <id>hibernate-spring-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <!-- Hibernate tests need to run in serial at the moment.  They're pretty fast anyway. -->
+              <parallel>none</parallel>
+              <forkCount>0</forkCount>
+              <includes>
+                <include>**/com/atlassian/bamboo/hibernate/**/*Test.java</include>
+              </includes>
+              <excludes>
+                <!-- override the no-profile excludes with the default excludes -->
+                <exclude>**/*$*</exclude>
+              </excludes>
+              <systemPropertyVariables>
+                <hibernate.connection.driver_class>${hibernate.connection.driver_class}</hibernate.connection.driver_class>
+                <hibernate.connection.username>${hibernate.connection.username}</hibernate.connection.username>
+                <hibernate.connection.password>${hibernate.connection.password}</hibernate.connection.password>
+                <hibernate.dialect>${hibernate.dialect}</hibernate.dialect>
+                <hibernate.connection.url>${hibernate.connection.url}</hibernate.connection.url>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+            <configuration>
+              <!-- Enable dropping and creating databases in db-specific profiles. -->
+              <skip>false</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>pgsql</id>
+      <properties>
+        <db.port>5432</db.port>
+        <!-- really needs to be the same as the functest one or else they could feasibly conflict. -->
+        <db.instance>bamboo-functest</db.instance>
+        <db.admin.username>postgres</db.admin.username>
+        <db.admin.password />
+        <dbms.url>jdbc:postgresql://localhost:${db.port}/postgres</dbms.url>
+
+        <!-- used by bamboo tests -->
+        <hibernate.connection.driver_class>org.postgresql.Driver</hibernate.connection.driver_class>
+        <hibernate.connection.username>bamboo</hibernate.connection.username>
+        <hibernate.connection.password>bamboo</hibernate.connection.password>
+        <hibernate.dialect>org.hibernate.dialect.PostgreSQL82Dialect</hibernate.dialect>
+        <hibernate.connection.url>jdbc:postgresql://localhost:${db.port}/${db.instance}</hibernate.connection.url>
+      </properties>
+
+      <build>
+        <plugins>
+          <!-- Drop and recreate database -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+
+            <configuration>
+              <username>${db.admin.username}</username>
+              <password>${db.admin.password}</password>
+              <url>${dbms.url}</url>
+              <driver>${hibernate.connection.driver_class}</driver>
+            </configuration>
+
+            <executions>
+
+              <execution>
+                <id>drop-create-database</id>
+                <phase>process-test-resources</phase>
+
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+
+                <configuration>
+                  <autocommit>true</autocommit>
+                  <sqlCommand>
+                    DROP DATABASE IF EXISTS "${db.instance}";
+                    DROP ROLE IF EXISTS "${hibernate.connection.username}";
+                    UPDATE pg_database SET datistemplate = FALSE WHERE datname = 'template1';
+                    DROP DATABASE template1;
+                    CREATE DATABASE template1 WITH template = template0 encoding = 'UTF8';
+                    CREATE ROLE ${hibernate.connection.username} NOSUPERUSER NOCREATEDB NOCREATEROLE LOGIN ENCRYPTED PASSWORD '${hibernate.connection.password}';
+                    CREATE DATABASE "${db.instance}" WITH OWNER "${hibernate.connection.username}" ENCODING 'UTF8';
+                  </sqlCommand>
+                  <onError>abort</onError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>mysql</id>
+      <properties>
+        <db.port>3306</db.port>
+        <db.admin.username>root</db.admin.username>
+        <db.admin.password />
+        <db.host>localhost</db.host>
+        <db.username>bamboo</db.username>
+        <db.password>bamboo</db.password>
+        <db.instance>bamboo-functest</db.instance>
+
+        <jdbc.driver>com.mysql.jdbc.Driver</jdbc.driver>
+        <dbms.url>jdbc:mysql://localhost:${db.port}</dbms.url>
+
+        <hibernate.connection.driver_class>${jdbc.driver}</hibernate.connection.driver_class>
+        <hibernate.connection.username>bamboo</hibernate.connection.username>
+        <hibernate.connection.password>bamboo</hibernate.connection.password>
+        <hibernate.dialect>org.hibernate.dialect.MySQL5InnoDBDialect</hibernate.dialect>
+        <hibernate.connection.url>${dbms.url}/${db.instance}?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false</hibernate.connection.url>
+        <acceptanceTestSettings>db-mysql.properties</acceptanceTestSettings>
+      </properties>
+
+      <build>
+        <plugins>
+          <!-- Drop and recreate database.  Note: requires clean. -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+
+            <configuration>
+              <username>${db.admin.username}</username>
+              <password>${db.admin.password}</password>
+              <url>${dbms.url}</url>
+              <driver>${jdbc.driver}</driver>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>drop-database</id>
+                <phase>generate-test-resources</phase>
+
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+
+                <configuration>
+                  <autocommit>true</autocommit>
+                  <sqlCommand>
+                    DROP DATABASE `${db.instance}`;
+                    DROP USER '${db.username}'@'${db.host}';
+                  </sqlCommand>
+                  <onError>continue</onError>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>create-database</id>
+                <phase>process-test-resources</phase>
+
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+
+                <configuration>
+                  <autocommit>true</autocommit>
+                  <sqlCommand>
+                    CREATE DATABASE `${db.instance}` CHARACTER SET utf8 COLLATE utf8_bin;
+                    GRANT ALL ON `${db.instance}`.* TO '${db.username}'@'${db.host}' IDENTIFIED BY '${db.password}';
+                  </sqlCommand>
+                  <onError>abort</onError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>oracle</id>
+      <properties>
+        <db.port>1521</db.port>
+        <db.instance>XE</db.instance>
+        <db.admin.username>oracle</db.admin.username>
+        <db.admin.password>oracle</db.admin.password>
+        <db.username>bamboo</db.username>
+        <db.password>bamboo</db.password>
+
+        <jdbc.databaseUrl>jdbc:oracle:thin:@localhost:${db.port}:${db.instance}</jdbc.databaseUrl>
+        <dbms.url>${jdbc.databaseUrl}</dbms.url>
+
+        <db.dialect>org.hibernate.dialect.Oracle12cDialect</db.dialect>
+
+        <jdbc.artifactGroup>com.oracle.jdbc</jdbc.artifactGroup>
+        <jdbc.artifactId>ojdbc8</jdbc.artifactId>
+        <jdbc.artifactVersion>${oracle.driver.version}</jdbc.artifactVersion>
+        <jdbc.driver>oracle.jdbc.OracleDriver</jdbc.driver>
+
+        <acceptanceTestSettings>db-oracle12c.properties</acceptanceTestSettings>
+        <hibernate.connection.driver_class>oracle.jdbc.OracleDriver</hibernate.connection.driver_class>
+        <hibernate.connection.username>${db.username}</hibernate.connection.username>
+        <hibernate.connection.password>${db.password}</hibernate.connection.password>
+        <hibernate.dialect>${db.dialect}</hibernate.dialect>
+        <hibernate.connection.SetBigStringTryClob>true</hibernate.connection.SetBigStringTryClob>
+        <hibernate.connection.url>${jdbc.databaseUrl}</hibernate.connection.url>
+      </properties>
+
+      <build>
+        <plugins>
+          <!-- Drop and recreate database -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+
+            <configuration>
+              <username>${db.admin.username}</username>
+              <password>${db.admin.password}</password>
+              <url>${dbms.url}</url>
+              <driver>${jdbc.driver}</driver>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>drop-database</id>
+                <phase>clean</phase>
+
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+
+                <configuration>
+                  <autocommit>true</autocommit>
+                  <sqlCommand>
+                    DROP USER ${db.username} CASCADE;
+                  </sqlCommand>
+                  <onError>continue</onError>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>create-database</id>
+                <phase>clean</phase>
+
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+
+                <configuration>
+                  <autocommit>true</autocommit>
+                  <sqlCommand>
+                    CREATE USER ${db.username} identified by ${db.password};
+                    GRANT ALL PRIVILEGES TO ${db.username} WITH ADMIN OPTION;
+                    GRANT SELECT ANY DICTIONARY TO ${db.username};
+                  </sqlCommand>
+                  <onError>abort</onError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>mssql</id>
+      <properties>
+        <db.admin.username>sa</db.admin.username>
+        <db.admin.password>@!1234abc</db.admin.password>
+        <db.host>localhost</db.host>
+        <db.port>1433</db.port>
+        <dbms.url>jdbc:sqlserver://${db.host}:${db.port}</dbms.url>
+        <db.username>sa</db.username>
+        <db.password>@!1234abc</db.password>
+        <db.instance>bamboo</db.instance>
+
+        <jdbc.artifactGroup>com.microsoft.sqlserver</jdbc.artifactGroup>
+        <jdbc.artifactId>mssql-jdbc</jdbc.artifactId>
+        <jdbc.artifactVersion>${sqlServer.driver.version}</jdbc.artifactVersion>
+        <jdbc.driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc.driver>
+
+        <hibernate.connection.driver_class>com.microsoft.sqlserver.jdbc.SQLServerDriver</hibernate.connection.driver_class>
+        <hibernate.connection.username>${db.username}</hibernate.connection.username>
+        <hibernate.connection.password>${db.password}</hibernate.connection.password>
+        <hibernate.dialect>com.atlassian.bamboo.hibernate.SQLServerIntlDialect</hibernate.dialect>
+        <hibernate.connection.url>jdbc:sqlserver://${db.host}:${db.port};databaseName=${db.instance}</hibernate.connection.url>
+
+        <sqlCreateDb>SELECT @@version; CREATE DATABASE "${db.instance}" COLLATE Latin1_General_CS_AS;</sqlCreateDb>
+        <!--<sqlCreateUser>CREATE USER ${db.username} WITH PASSWORD = '${db.password}';</sqlCreateUser>-->
+        <sqlDropUser />
+      </properties>
+
+      <build>
+        <plugins>
+          <!-- Drop and recreate database -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>sql-maven-plugin</artifactId>
+
+            <configuration>
+              <username>${db.admin.username}</username>
+              <password>${db.admin.password}</password>
+              <url>${dbms.url}</url>
+              <driver>${jdbc.driver}</driver>
+              <printResultSet>true</printResultSet>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>drop-database</id>
+                <phase>clean</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <sqlCommand>DROP DATABASE "${db.instance}"</sqlCommand>
+                  <onError>continue</onError>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>create-database</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <sqlCommand>${sqlCreateDb}</sqlCommand>
+                  <onError>abort</onError>
+                </configuration>
+              </execution>
+              <execution>
+                <id>post-create-database</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <sqlCommand>
+                  ALTER DATABASE "${db.instance}" SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;
+                </sqlCommand>
+                  <onError>abort</onError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
+    </profile>
+
+    <!-- this profile needs a BOM. Generate it previously with 'verify license:bom'.
+         And don't add license:bom as part of your lifecycle. 
+         https://extranet.atlassian.com/x/SJbzew -->
+    <profile>
+      <id>third-party-licensing</id>
+      <build>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>build-helper-maven-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-artifacts</id>
+                  <phase>package</phase>
+                  <goals>
+                    <goal>attach-artifact</goal>
+                  </goals>
+                  <configuration>
+                    <artifacts>
+                      <artifact>
+                        <file>${thirdpartylicensing.bom}</file>
+                        <type>csv</type>
+                        <classifier>bom</classifier>
+                      </artifact>
+                    </artifacts>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+              <groupId>com.atlassian.maven.plugins</groupId>
+              <artifactId>maven-licensing-bom-processor-plugin</artifactId>
+              <version>0.3</version>
+              <executions>
+                <execution>
+                  <id>process-licences</id>
+                  <phase>generate-resources</phase>
+                  <goals>
+                    <goal>generate</goal>
+                  </goals>
+                  <configuration>
+                    <bom>${project.basedir}/../../third-party-licensing/bom.csv</bom>
+                    <template>${project.basedir}/src/main/resources/static/lgplTemplate.soy</template>
+                    <templateName>bamboo.build.generate.licenseTemplates</templateName>
+                    <output>${exploded.war.root}/about/lgpl.soy</output>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </build>
+    </profile>
+
+    <!-- generate whitelist of class names for class serialization purposes -->
+    <profile>
+      <id>generate-classlist</id>
+      <properties>
+        <skipGenerateClasslist>false</skipGenerateClasslist>
+      </properties>
+    </profile>
+  </profiles>
+</project>

@@ -1,0 +1,1 @@
+[@ww.checkbox name='firstErrorOccuranceOnly' value='${firstErrorOccuranceOnly}' labelKey='notification.build_error.first_occurrence'/]

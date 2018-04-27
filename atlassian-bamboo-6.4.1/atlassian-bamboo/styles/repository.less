@@ -1,0 +1,230 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+/* Repository Build Strategy configuration */
+#panel-editor-setup.repository-config + form {
+    display: block;
+    margin-top: 5px;
+    padding-top: 15px;
+}
+
+/* When no repositories are available */
+.repository-config.no-items > #panel-editor-list > p {
+    display: none;
+}
+
+/* Top border of the second item is thicker */
+.repository-config > #panel-editor-list .item-default + .item {
+    border-top-width: 2px;
+}
+
+/* Repository Types Dialog */
+#repository-types-dialog {
+    .dialog-page-menu {
+        margin-right: 0;
+        width: 199px;
+    }
+
+    .dialog-title {
+        white-space: normal;
+    }
+}
+
+/* View repository list */
+#view-repository-list .repository .details {
+    background: #f9f9f9;
+    border-bottom: 1px dotted #ddd;
+    border-top: 1px dotted #ddd;
+    margin-top: 4px;
+    overflow: hidden;
+    padding: 4px 0;
+}
+#view-repository-list .repository.collapsed .details {
+    display: none;
+}
+
+ul#bamboo-repository-list {
+    list-style: none;
+    padding: 0;
+}
+ul#bamboo-repository-list > li + li {
+    margin-top: 8px;
+}
+#view-repository-list .repository .summary {
+    padding-left: 20px;
+    position: relative;
+}
+
+#view-repository-list .repository .summary .toggle {
+    left: 0;
+    position: absolute;
+}
+
+#view-repository-list .repository .summary div.repository-title {
+    font-weight: bold;
+}
+
+#view-repository-list .repository .summary div.repository-title .repository-url{
+    padding-left: 5px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#view-repository-list .repository .repository-description {
+    color: #505050;
+}
+
+/* Source Code Checkout Task */
+#checkout-list {
+    border-bottom: 1px solid #ddd;
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+}
+#checkout-list > li {
+    margin: 0;
+    padding-bottom: 10px;
+    position: relative;
+}
+#checkout-list > li + li {
+    border-top: 3px solid #ddd;
+    padding-top: 10px;
+}
+#checkout-list .aui-toolbar {
+    position: absolute;
+    right: 0;
+    top: 14px;
+    z-index: 1;
+}
+#checkout-add {
+    background: url(../../../images/jt/create_12.png) no-repeat 3px 50%;
+    display: inline-block;
+    margin-bottom: 30px;
+    padding-left: 20px;
+}
+
+/* General repository config formatting */
+#repository-id {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding-bottom: 14px;
+}
+
+#repository-delete-navigator {
+    list-style: none;
+    padding: 0;
+}
+#repository-delete-navigator h4 {
+    font-size: 1em;
+}
+#repository-delete-navigator .disabled a {
+    color: #666;
+}
+#repository-delete-navigator .icon-job {
+    margin-right: 4px;
+}
+#repository-delete-navigator ul {
+    list-style: none;
+    margin-top: 8px;
+    padding: 0 0 0 20px;
+}
+#repository-delete-navigator li + li {
+    margin-top: 4px;
+}
+#repository-delete-navigator > li + li {
+    margin-top: 16px;
+}
+
+/* Share Repository Toolbar */
+.share-repository-toolbar {
+    float: right;
+    z-index: 1;
+    font-size: @baseFontSize;
+}
+.share-repository-toolbar + .field-group {
+    clear: left !important;
+}
+.global-repository-details > .floating-toolbar {
+    margin: 0;
+}
+.global-repository-details > .floating-toolbar + h3 {
+    margin-top: 0;
+}
+
+.aui-page-focused .aui-page-panel-content .repository-config h3 {
+   margin-top: 0;
+}
+
+.test-repository-connection-container {
+    margin: 15px 0;
+
+    .connection-result {
+        width: 100%;
+        position: relative;
+        margin: 15px 0;
+
+        &-success {
+            color: #14892c;
+        }
+
+        &-error {
+            color: @secondaryTextColor;
+
+            .aui-icon {
+                color: @lozengeWarningColor;
+            }
+        }
+
+        &-error-message {
+            margin: @doubleSpacing 0 @baseSpacing -@doubleSpacing;
+            max-width: 500px - 2 * @doubleSpacing;
+
+            pre {
+                font-size: @smallFontSize;
+            }
+        }
+
+        .connection-result-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 16px;
+            height: 16px;
+        }
+        .connection-result-message {
+            box-sizing: border-box;
+            width: 100%;
+            padding-left: 21px;
+        }
+    }
+}
+
+#panel-editor-list {
+    // default marker is repository specific addition to panel editor list */
+    .active {
+        .item-default-marker {
+            color: @secondaryHighlightColor;
+        }
+    }
+
+    .repository-item-link {
+        white-space: nowrap;
+    }
+}
+
+#panel-editor-config {
+    & > h2 {
+        margin-top: 0;
+    }
+
+    & > form {
+        margin-top: 10px;
+    }
+}
+
+form#createGlobalRepository, form#updateGlobalRepository {
+    margin-top: @baseSpacing;
+
+    h2 {
+        margin-bottom: @doubleSpacing;
+    }
+}

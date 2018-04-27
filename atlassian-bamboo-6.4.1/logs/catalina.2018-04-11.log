@@ -1,0 +1,10 @@
+11-Apr-2018 15:16:08.776 WARNING [main] org.apache.tomcat.util.digester.SetPropertiesRule.begin [SetPropertiesRule]{Server/Service/Engine/Valve} Setting property 'resolveHosts' to 'false' did not find a matching property.
+11-Apr-2018 15:16:08.786 INFO [main] org.apache.catalina.core.AprLifecycleListener.lifecycleEvent The APR based Apache Tomcat Native library which allows optimal performance in production environments was not found on the java.library.path: /usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+11-Apr-2018 15:16:08.987 INFO [main] org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler ["http-nio-8085"]
+11-Apr-2018 15:16:09.084 INFO [main] org.apache.tomcat.util.net.NioSelectorPool.getSharedSelector Using a shared selector for servlet write/read
+11-Apr-2018 15:16:09.087 INFO [main] org.apache.catalina.startup.Catalina.load Initialization processed in 1827 ms
+11-Apr-2018 15:16:09.145 INFO [main] org.apache.catalina.core.StandardService.startInternal Starting service Catalina
+11-Apr-2018 15:16:09.145 INFO [main] org.apache.catalina.core.StandardEngine.startInternal Starting Servlet Engine: Apache Tomcat/8.0.36
+11-Apr-2018 15:16:37.540 INFO [localhost-startStop-1] org.apache.jasper.servlet.TldScanner.scanJars At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+11-Apr-2018 15:16:49.493 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-nio-8085"]
+11-Apr-2018 15:16:49.513 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 40425 ms

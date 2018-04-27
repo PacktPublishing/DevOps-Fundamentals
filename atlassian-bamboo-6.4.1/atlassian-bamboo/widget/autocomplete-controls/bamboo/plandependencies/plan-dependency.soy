@@ -1,0 +1,49 @@
+{namespace bamboo.widget.autocomplete.planDependency}
+
+/**
+ * Display a list of plan's dependencies.
+ *
+ * @param dependencies collection of plan's dependencies
+ * @param isParent whether the current plan is a parent of the dependencies or a child
+ * @param? extraClasses extra CSS classes for the list
+ * @param? isReadOnly whether the entire list list is read-only
+ */
+{template .list}
+    <ul class="{length($dependencies) == 0 ? 'empty' : ''}{call aui.renderExtraClasses data="all" /}">
+        {foreach $dependency in $dependencies}
+            {let $plan: $isParent ? $dependency.childPlan : $dependency.parentPlan /}
+            <li data-id="{$plan.key}">
+                {call .item}
+                    {param id: $plan.key /}
+                    {param projectName: $plan.project.name /}
+                    {param planName: $plan.buildName /}
+                    {param isEditable: $dependency.editable /}
+                    {param isReadOnly: $isReadOnly /}
+                {/call}
+            </li>
+        {/foreach}
+    </ul>
+{/template}
+
+/**
+ * @param id
+ * @param projectName
+ * @param? planName
+ * @param? isEditable
+ * @param? isReadOnly
+ */
+{template .item}
+    <a href="{contextPath() + '/chain/admin/config/editChainDependencies.action?buildKey=' + $id}">{$projectName}{if $planName} &rsaquo; {$planName}{/if}</a>
+    {if not ($isEditable == false)}
+        {if not $isReadOnly}
+            <a class="remove"></a>
+            <input type="hidden" name="childPlanKeys" value="{$id}" />
+        {/if}
+    {else}
+        {call widget.lozenges.lozenge}
+            {param text: getText('chain.dependency.generated') /}
+            {param subtle: true /}
+            {param extraClasses: 'dependencies-generated' /}
+        {/call}
+    {/if}
+{/template}

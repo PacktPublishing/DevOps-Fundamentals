@@ -1,0 +1,35 @@
+{namespace bamboo.layout}
+
+/**
+ * Project Header Actions
+ * @param projectKey
+ * @param hasAdminPermission
+ */
+{template .projectActions}
+    {call aui.buttons.buttons}
+        {param content}
+            {call aui.buttons.button}
+                {param text: ' ' + getText('dashboard.wallboard.project') /}
+                {param tagName: 'a' /}
+                {param id: 'projectWallboardButton' /}
+                {param iconClass: 'icon icon-wallboard' /}
+                {param iconType: 'custom' /}
+                {param extraAttributes: [ 'href': contextPath() + '/telemetry.action?filter=project&projectKey=' + $projectKey ] /}
+            {/call}
+        {/param}
+    {/call}
+    {if $hasAdminPermission}
+        {call aui.buttons.buttons}
+            {param content}
+                {call aui.buttons.button}
+                    {param text: ' ' + getText('project.configuration.link.label') /}
+                    {param tagName: 'a' /}
+                    {param id: 'projectSettingsButton' /}
+                    {param iconClass: 'aui-icon-small aui-iconfont-configure' /}
+                    {param iconType: 'aui' /}
+                    {param extraAttributes: [ 'href': contextPath() + '/project/admin/config/editProjectDetails.action?projectKey=' + $projectKey ] /}
+                {/call}
+            {/param}
+        {/call}
+    {/if}
+{/template}

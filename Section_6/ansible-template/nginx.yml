@@ -1,0 +1,23 @@
+---
+- hosts: all
+  user: root
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Update sources
+    apt:
+      update_cache: yes
+  - name: Upgrade all packages
+    apt:
+      upgrade: dist
+  - name: Install nginx
+    apt:
+      name: nginx
+      state: present
+  - template:
+      src: nginx-servers/nginx-one.conf.j2
+      dest: /etc/nginx/sites-enabled/default
+      owner: root
+  - service:
+      name: nginx
+      state: reloaded

@@ -1,0 +1,6 @@
+- include: play-include.yml
+- hosts: all
+  user: root
+  tasks:
+  - debug: msg="I am the main playbook"
+  - include: tasks-include.yml

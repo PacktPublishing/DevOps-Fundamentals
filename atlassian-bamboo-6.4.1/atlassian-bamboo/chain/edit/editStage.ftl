@@ -1,0 +1,15 @@
+[#-- @ftlvariable name="action" type="com.atlassian.bamboo.ww2.actions.chains.StageAction" --]
+[#-- @ftlvariable name="" type="com.atlassian.bamboo.ww2.actions.chains.StageAction" --]
+<title>Add a new Stage</title>
+[@s.form action="saveStage" namespace="/chain/admin/ajax"
+        submitLabelKey="global.buttons.update"]
+    [@s.hidden name="returnUrl" /]
+    [@s.textfield labelKey='stage.name' name='stageName' required=true /]
+    [@s.textfield labelKey='stageDescription' name='stageDescription' required=false /]
+    [@s.checkbox labelKey='stage.manual' name='stageManual' /]
+    [#if featureManager.isFinalStagesEnabled()]
+        [@s.checkbox labelKey="stage.final" name='finalStage'/]
+    [/#if]
+    [@s.hidden name="buildKey"/]
+    [@s.hidden name="stageId"/]
+[/@s.form]

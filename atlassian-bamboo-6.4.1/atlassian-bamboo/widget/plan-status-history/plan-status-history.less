@@ -1,0 +1,136 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+// Mixin for cross-browser user-select declaration
+.user-select(@val) {
+    -webkit-touch-callout: @val;
+    -webkit-user-select:   @val;
+    -khtml-user-select:    @val;
+    -moz-user-select:      @val;
+    -ms-user-select:       @val;
+    user-select:           @val;
+}
+
+#plan-status-history {
+    .border-radius();
+    background: @contentBackgroundColor;
+    border: 1px solid @dividerColor;
+    display: inline-block;
+    margin-right: @baseSpacing;
+    padding: 1px @halfSpacing;
+    position: relative;
+    vertical-align: middle;
+
+    > .next, .previous {
+        background-color: @contentBackgroundColor;
+        float: left;
+        overflow: hidden;
+        padding: 3px;
+        position: relative;
+        text-decoration: none;
+        .user-select(none);
+        z-index: 1;
+
+        &:hover > span {
+            color: #505050;
+        }
+
+        // this is intentionally after the :hover selector for specificity
+        &.disabled > span {
+            color: #f0f0f0;
+        }
+    }
+
+    > .next {
+        margin-left: 4px;
+    }
+
+    > .previous {
+        margin-right: 4px;
+    }
+
+    > .spinner {
+        display: none;
+        float: left;
+        margin: @halfSpacing;
+
+        &.next, &.previous {
+            padding: 0;
+        }
+
+        &.next {
+            margin-left: 6px;
+        }
+
+        &.previous {
+            margin-right: 6px;
+        }
+    }
+
+    > ol {
+        display: table;
+        float: left;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        z-index: 0;
+
+        > li {
+            display: table-cell;
+            background: @contentBackgroundColor;
+            position: relative;
+            z-index: 0;
+        }
+
+        > li.animated {
+            .transition(all 0.25s);
+        }
+    }
+
+    .aui-iconfont-down.left,
+    .aui-iconfont-up.right {
+        .transform-rotate(90deg);
+    }
+}
+
+#plan-status-history li > a {
+    .transition(all 0.2s ease);
+    display: block;
+    padding: 3px @halfSpacing 7px;
+    height: 16px;
+    float: left;
+
+    &:hover {
+        background: #f0f0f0;
+    }
+}
+
+#plan-status-history .current > a {
+    background: @primaryHighlightColor;
+}
+
+#plan-status-history .icon {
+    display: block;
+    margin-top: 2px;
+}
+
+#plan-status-history > p {
+    color: @secondaryTextColor;
+    font-size: 12px;
+    line-height: 1;
+    margin: 0;
+    padding: 7px 8px;
+}
+
+/* Tooltip styling */
+#inline-dialog-plan-status-history-info {
+    max-width: 342px;
+
+    .icon + strong, .aui-icon + strong,
+    .lozenge {
+        margin-left: @halfSpacing;
+    }
+    p {
+        margin-top: @halfSpacing;
+    }
+}

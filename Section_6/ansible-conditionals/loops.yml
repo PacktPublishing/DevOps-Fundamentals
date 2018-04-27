@@ -1,0 +1,16 @@
+---
+- hosts: all
+  user: root
+  vars:
+
+    namesAge:
+      - name: David
+        age: 33
+      - name: Ester
+        age: 31
+      - name: Elena
+        age: 1
+  tasks:
+  - name: Greetings
+    debug: msg="Greetings {{ item }}! Live long and prosper."
+    with_items: "{{ names }}"

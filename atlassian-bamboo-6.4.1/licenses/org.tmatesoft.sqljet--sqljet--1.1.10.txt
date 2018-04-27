@@ -1,0 +1,20 @@
+"1.2. "Application" means JIRA bug tracking application or JIRA bug
+tracking
+application Subversion plug-in, Bamboo or FishEye Java application
+developed
+by the Company."\
+
+2. LICENSING.
+2.1. TMate grants Company worldwide irrevocable, unrestricted right,
+unlimited
+in terms of time to redistribute SVNKit library in any form, either as a
+separate file or part of the Application file, assuming SVNKit is used only
+with
+or by Application software.
+2.2. Granted right covers all versions of SVNKit published by TMate during
+the
+term of this Agreement.
+2.3. Should SVNKit be published under different name in the future, all
+rights
+granted by this Agreement will remain applicable for the term of this
+Agreement."

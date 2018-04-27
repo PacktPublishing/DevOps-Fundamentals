@@ -1,0 +1,27 @@
+project:
+  name: project
+  collection: categorymanager.projects
+  attributes:
+    - &project
+      parameter_name: projectsId
+      attribute_name: project
+      help: The project ID.
+
+project_scoped_taxonomy:
+  name: projectTaxonomy
+  collection: categorymanager.projects.taxonomies
+  attributes:
+    - &project_scoped_taxonomy
+      parameter_name: taxonomiesId
+      attribute_name: taxonomy
+      help: The ID of the project taxonomy.
+
+project_scoped_annotation:
+  name: projectAnnotation
+  collection: categorymanager.projects.taxonomies.annotations
+  attributes:
+    - *project_scoped_taxonomy
+    - &project_scoped_annotation
+      parameter_name: annotationsId
+      attribute_name: annotation
+      help: The ID of the project annotation.

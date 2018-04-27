@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+  <bean id="schemaHelper" class="com.atlassian.bamboo.hibernate.BambooSchemaHelper"/>
+
+  <bean id="dbmsBeanFactory" class="com.atlassian.bamboo.utils.db.DbmsBeanFactoryImpl">
+    <constructor-arg ref="hibernateConfig"/>
+  </bean>
+
+  <!--
+  It is non-singleton (prototype) because factory method throws an exception when called and Hibernate is not yet configured.
+  This happens in DefaultHibernateConfigurator.refreshSpringContextAndCreateDatabase
+  -->
+  <bean id="dbmsBean" factory-bean="dbmsBeanFactory" factory-method="createDbmsBean" lazy-init="true"/>
+
+  <bean id="mappingResources" class="bucket.core.persistence.hibernate.MappingResources">
+    <property name="mappings">
+      <list>
+        <value>com/atlassian/bamboo/buildqueue/dao/PipelineDefinition.hbm.xml</value>
+        <value>com/atlassian/bamboo/buildqueue/AgentAssignment.hbm.xml</value>
+        <value>com/atlassian/bamboo/buildqueue/dao/RemoteAgentAuthentication.hbm.xml</value>
+        <value>com/atlassian/bamboo/core/Script.hbm.xml</value>
+        <value>com/atlassian/bamboo/core/IdGenerator.hbm.xml</value>
+        <value>com/atlassian/bamboo/agent/elastic/server/ElasticImageConfiguration.hbm.xml</value>
+        <value>com/atlassian/user/ExternalEntity.hbm.xml</value>
+        <value>com/atlassian/user/User.hbm.xml</value>
+        <value>com/atlassian/user/Group.hbm.xml</value>
+        <value>com/atlassian/bamboo/instantmessagingserver/InstantMessagingServerDefinition.hbm.xml</value>
+        <value>com/atlassian/bamboo/resultsummary/ResultsSummary.hbm.xml</value>
+        <value>com/atlassian/bamboo/resultsummary/vcs/RepositoryChangeset.hbm.xml</value>
+        <value>com/atlassian/bamboo/resultsummary/TestResults.hbm.xml</value>
+        <value>com/atlassian/bamboo/resultsummary/OrphanedTestsCleanup.hbm.xml</value>
+        <value>com/atlassian/bamboo/commit/Commit.hbm.xml</value>
+        <value>com/atlassian/bamboo/author/Author.hbm.xml</value>
+        <value>com/atlassian/bamboo/project/Project.hbm.xml</value>
+        <value>com/atlassian/bamboo/agent/elastic/server/ElasticInstanceSchedule.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/BuildDefinition.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/number/PlanBuildNumbers.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/Plan.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/PlanDependency.hbm.xml</value>
+        <value>bucket/user/persistence/dao/hibernate/BucketPropertySetItem.hbm.xml</value>
+        <value>com/atlassian/bamboo/labels/Label.hbm.xml</value>
+        <value>com/atlassian/bamboo/comment/Comment.hbm.xml</value>
+        <value>com/atlassian/bamboo/notification/Notification.hbm.xml</value>
+        <value>com/atlassian/bamboo/capability/CapabilityRequirement.hbm.xml</value>
+        <value>com/atlassian/bamboo/security/acegi/acls/Acl.hbm.xml</value>
+        <value>com/atlassian/bamboo/chains/ChainStage.hbm.xml</value>
+        <value>com/atlassian/bamboo/chains/ChainStageResult.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/ArtifactLink.hbm.xml</value>
+        <value>com/atlassian/bamboo/user/PasswordResetToken.hbm.xml</value>
+        <value>com/atlassian/bamboo/security/RememberMeToken.hbm.xml</value>
+        <value>com/atlassian/bamboo/security/TrustedKey.hbm.xml</value>
+        <value>com/atlassian/bamboo/plan/artifact/ConsumedSubscription.hbm.xml</value>
+        <value>com/atlassian/bamboo/plan/branch/VcsBranch.hbm.xml</value>
+        <value>com/atlassian/bamboo/plan/pullrequest/VcsPullRequest.hbm.xml</value>
+        <value>com/atlassian/bamboo/security/trustedapplications/TrustedApplications.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/VariableDefinition.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/VariableSubstitution.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/VariableContext.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/VariableContextBaseline.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/VariableBaselineItem.hbm.xml</value>
+        <value>com/atlassian/bamboo/variable/StageVariableContext.hbm.xml</value>
+        <value>com/atlassian/bamboo/plan/vcsRevision/PlanVcsRevisionHistory.hbm.xml</value>
+        <value>com/atlassian/bamboo/repository/RepositoryDefinition.hbm.xml</value>
+        <value>com/atlassian/bamboo/build/branch/BranchCommitInformation.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/environments/persistence/Environment.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/projects/persistence/DeploymentProject.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/results/persistence/DeploymentResult.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/versions/persistence/DeploymentVersion.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/versions/persistence/DeploymentVersionVcsChangeset.hbm.xml</value>
+        <value>com/atlassian/bamboo/deployments/versions/persistence/DeploymentVersionLinkedJiraIssue.hbm.xml</value>
+        <value>com/atlassian/bamboo/credentials/CredentialsData.hbm.xml</value>
+        <value>com/atlassian/bamboo/quickfilter/QuickFilter.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="databaseConnectionPoolLimitedConcurrencyConfigurator" class="com.atlassian.bamboo.build.DatabaseConnectionPoolLimitedConcurrencyFactory">
+    <constructor-arg ref="applicationConfig"/>
+    <constructor-arg value="${bamboo.concurrent.build.creators}"/>
+    <constructor-arg value="${bamboo.concurrent.build.creators.auto}"/>
+  </bean>
+
+  <bean id="buildExecutionManagerLimitedConcurrencyCaller"
+        factory-bean="databaseConnectionPoolLimitedConcurrencyConfigurator"
+        factory-method="createInstance">
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.springframework.transaction.PlatformTransactionManager"/>
+
+    <property name="target">
+      <bean class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+
+  </bean>
+
+  <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+    <constructor-arg ref="sessionFactory"/>
+  </bean>
+
+  <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <constructor-arg ref="transactionManager"/>
+  </bean>
+
+  <bean id="bambooConnectionTemplate" class="com.atlassian.bamboo.persistence.BambooConnectionTemplate">
+    <constructor-arg ref="hibernateTemplate"/>
+    <constructor-arg ref="transactionTemplate"/>
+  </bean>
+
+  <bean id="bambooTransactionHibernateTemplate" class="com.atlassian.bamboo.persistence.BambooTransactionHibernateTemplate">
+    <constructor-arg ref="hibernateTemplate"/>
+    <constructor-arg ref="transactionTemplate"/>
+  </bean>
+
+  <bean id="dependencyInjectionInterceptor" class="org.springframework.orm.hibernate.support.DependencyInjectionInterceptorFactoryBean">
+    <property name="sessionFactoryName" value="sessionFactory"/>
+    <property name="autowireByNameClasses">
+      <list>
+        <value>com.atlassian.bamboo.author.AuthorImpl</value>
+        <value>com.atlassian.bamboo.build.DefaultJob</value>
+        <value>com.atlassian.bamboo.chains.DefaultChain</value>
+        <value>com.atlassian.bamboo.plan.branch.ChainBranchImpl</value>
+        <value>com.atlassian.bamboo.comment.CommentImpl</value>
+        <value>com.atlassian.bamboo.notification.NotificationRuleImpl</value>
+        <value>com.atlassian.bamboo.security.acegi.acls.HibernateAclImpl</value>
+      </list>
+    </property>
+    <property name="nextInterceptor" ref="oidGenerationInterceptor"/>
+  </bean>
+
+  <bean id="oidGenerationInterceptor" class="com.atlassian.bamboo.persister.OidGenerationInterceptor">
+    <property name="nextInterceptor" ref="readonlyGetMethodEnforcer"/>
+  </bean>
+
+  <bean id="readonlyGetMethodEnforcer" class="com.atlassian.bamboo.hibernate.ReadOnlyGetMethodEnforcer">
+    <property name="nextInterceptor" ref="hibernateObjectsAuditInterceptor"/>
+  </bean>
+
+  <bean id="hibernateObjectsAuditInterceptor" class="com.atlassian.bamboo.persister.HibernateObjectsAuditInterceptor">
+    <property name="nextInterceptor" ref="cacheInvalidationInterceptor"/>
+  </bean>
+
+  <bean id="cacheInvalidationInterceptor" class="com.atlassian.bamboo.hibernate.cachehooks.DirtiedHibernateSessionObjectRecorder"/>
+
+  <bean id="sessionFactory" class="bucket.core.persistence.hibernate.ConfigurableLocalSessionFactoryBean">
+    <property name="mappingResources" ref="mappingResources"/>
+    <property name="hibernateConfig" ref="hibernateConfig"/>
+    <property name="hibernateProperties" ref="hibernateProperties"/>
+    <property name="entityInterceptor" ref="dependencyInjectionInterceptor"/>
+    <property name="implicitNamingStrategy">
+      <bean class="com.atlassian.bamboo.hibernate.cache.ImplicitNamingStrategyRealLegacyHbmImpl"/>
+    </property>
+    <property name="annotatedClasses">
+      <util:list>
+        <value>com.atlassian.bamboo.artifact.MutableArtifactImpl</value>
+        <value>com.atlassian.bamboo.bandana.BandanaItem</value>
+        <value>com.atlassian.bamboo.build.PlanBranchPullRequestEntity</value>
+        <value>com.atlassian.bamboo.persister.AuditLogMessage</value>
+        <value>com.atlassian.bamboo.plan.artifact.ArtifactDefinitionImpl</value>
+        <value>com.atlassian.bamboo.plan.artifact.ArtifactSubscriptionImpl</value>
+        <value>com.atlassian.bamboo.plan.VcsLocationBambooSpecsStateImpl</value>
+        <value>com.atlassian.bamboo.plan.VcsBambooSpecsSourceImpl</value>
+        <value>com.atlassian.bamboo.specs.RssProjectPermissionImpl</value>
+        <value>com.atlassian.bamboo.specs.RssRepositoryPermissionImpl</value>
+        <value>com.atlassian.bamboo.deployments.specs.RssDeploymentProjectPermissionImpl</value>
+        <value>com.atlassian.bamboo.user.LoginInformationImpl</value>
+        <value>com.atlassian.bamboo.deployments.configuration.persistence.EnvironmentCustomConfigImpl</value>
+        <value>com.atlassian.bamboo.deployments.projects.persistence.items.AbstractMutableDeploymentProjectItem</value>
+        <value>com.atlassian.bamboo.deployments.projects.persistence.items.MutableBambooArtifactDeploymentProjectItem</value>
+        <value>com.atlassian.bamboo.deployments.projects.persistence.MutableDeploymentProjectImpl</value>
+      </util:list>
+    </property>
+  </bean>
+
+  <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate5.support.OpenSessionInterceptor">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <bean id="bambooEntityOidService" class="com.atlassian.bamboo.core.BambooEntityOidServiceImpl"/>
+
+  <bean id="txReadWriteProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" abstract="true">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="transactionAttributes">
+      <props>
+        <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="is*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="has*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="filter*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="read*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="retrieve*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="*NewTx">PROPAGATION_REQUIRES_NEW,ISOLATION_READ_COMMITTED</prop>
+        <prop key="*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="txReadProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+        abstract="true">
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="transactionAttributes">
+      <props>
+        <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="idGeneratorDao" class="com.atlassian.bamboo.oid.IdGeneratorDaoImpl">
+      <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="projectDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.project.ProjectHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean name="resultsSummaryDiscriminatorRegistry" class="com.atlassian.bamboo.resultsummary.ResultsSummaryDiscriminatorRegistry"/>
+
+  <bean id="vcsBranchDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.branch.VcsBranchHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="vcsPullRequestDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.pullrequest.VcsPullRequestHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="buildResultsSummaryDao" class="com.atlassian.bamboo.resultsummary.BuildResultsSummaryHibernateDao">
+    <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="resultsSummaryDiscriminatorRegistry" ref="resultsSummaryDiscriminatorRegistry"/>
+    <property name="planDiscriminatorRegistry" ref="planDiscriminatorRegistry"/>
+    <property name="testResultsHibernateDao" ref="testResultsDao"/>
+  </bean>
+
+  <bean id="agentBuildResultsSummaryDao" class="com.atlassian.bamboo.resultsummary.AgentBuildResultsSummaryHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="mergeResultSummaryDao" class="com.atlassian.bamboo.resultsummary.MergeResultSummaryDaoImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="authorDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.author.AuthorHibernateDao">
+        <constructor-arg ref="planDiscriminatorRegistry"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="tokenDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.user.PasswordResetTokenHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="notificationDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.notification.NotificationHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="commitDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.commit.CommitHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="labelDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.labels.LabelHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="agentDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.buildqueue.dao.AgentHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="agentAssignmentDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.buildqueue.dao.AgentAssignmentDaoImpl">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="remoteAgentAuthenticationDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.buildqueue.dao.RemoteAgentAuthenticationHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="elasticImageConfigurationDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.agent.elastic.server.ElasticImageConfigurationHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="elasticInstanceScheduleDao" class="com.atlassian.bamboo.agent.elastic.schedule.ElasticInstanceScheduleDaoImpl">
+    <constructor-arg ref="sessionFactory"/>
+  </bean>
+
+  <bean id="commentDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.comment.CommentHibernateDao">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="aclDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.security.acegi.acls.AclHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <!--bean class="com.atlassian.bamboo.security.acegi.acls.CachingAclDao">
+            <constructor-arg>
+                <bean class="com.atlassian.bamboo.security.acegi.acls.AclHibernateDao">
+                    <property name="sessionFactory" ref="sessionFactory"/>
+                </bean>
+            </constructor-arg-->
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="auditLogDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.persister.AuditLogHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="specsStateDao" class="com.atlassian.bamboo.specs.BambooSpecsStateDaoImpl"/>
+  <bean id="specsSourceDao" class="com.atlassian.bamboo.specs.BambooSpecsSourceDaoImpl"/>
+
+  <bean id="capabilityDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.capability.CapabilityDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="planDiscriminatorRegistry" ref="planDiscriminatorRegistry"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="propertySetDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.user.propertyset.BambooBucketPropertySetHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean name="planDiscriminatorRegistry" class="com.atlassian.bamboo.plan.PlanDiscriminatorRegistry"/>
+
+  <bean id="planDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.PlanHibernateDao">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="planDiscriminatorRegistry" ref="planDiscriminatorRegistry"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="planDependencyDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.build.PlanDependencyHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="planBranchPullRequestDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.build.PlanBranchPullRequestDaoImpl"/>
+    </property>
+  </bean>
+
+  <bean id="artifactLinkDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.build.artifact.ArtifactLinkHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="artifactDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.artifact.ArtifactHibernateDao">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="artifactDefinitionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.artifact.ArtifactDefinitionHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="artifactSubscriptionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.artifact.ArtifactSubscriptionHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="variableDefinitionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.variable.VariableDefinitionHibernateDao">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="variableContextBaselineDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.variable.baseline.VariableContextBaselineHibernateDao">
+        <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="consumedSubscriptionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.artifact.ConsumedSubscriptionHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="localCapabilityDao" class="com.atlassian.bamboo.capability.LocalCapabilityHibernateSetDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="remoteCapabilityDao" class="com.atlassian.bamboo.capability.RemoteCapabilityHibernateSetDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="imageCapabilityDao" class="com.atlassian.bamboo.capability.ImageCapabilitySetHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="testsDao" class="com.atlassian.bamboo.resultsummary.tests.TestsHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="testCaseDao" class="com.atlassian.bamboo.resultsummary.tests.TestCaseHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="testResultsDao" class="com.atlassian.bamboo.resultsummary.tests.TestResultsHibernateDao">
+    <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="testCaseResultDao" class="com.atlassian.bamboo.resultsummary.tests.TestCaseResultHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="loginInformationDao" class="com.atlassian.bamboo.user.LoginInformationHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="chainStageDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.chains.ChainStageHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="bambooRememberMeTokenDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.security.BambooRememberMeTokenDaoImpl">
+        <constructor-arg ref="rememberMeConfiguration"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="trustedKeyDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.security.TrustedKeyHibernateDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="bambooTrustedApplicationsHibernateDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.security.trustedapplications.BambooTrustedApplicationsHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="branchCommitInformationDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.build.branch.BranchCommitInformationHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="planVcsRevisionHistoryDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.plan.vcsRevision.PlanVcsRevisionHistoryHibernateStandaloneDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="repositoryDefinitionDao" class="com.atlassian.bamboo.repository.RepositoryDefinitionHibernateDao">
+    <constructor-arg ref="bambooTransactionHibernateTemplate"/>
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="repositoryChangesetDao" class="com.atlassian.bamboo.resultsummary.vcs.RepositoryChangesetHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="planRepositoryLinkDao" class="com.atlassian.bamboo.repository.PlanRepositoryLinkHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="linkedJiraIssueDao" class="com.atlassian.bamboo.resultsummary.LinkedJiraIssueHibernateDao">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <bean id="credentialsDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.credentials.CredentialsHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="quickFilterDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.quickfilter.QuickFilterHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="quickFilterRuleDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.quickfilter.rule.QuickFilterRuleHibernateDao">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="rssProjectPermissionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.specs.RssProjectPermissionHibernateDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="rssRepositoryPermissionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.specs.RssRepositoryPermissionHibernateDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="rssDeploymentProjectPermissionDao" parent="txReadWriteProxy">
+    <property name="target">
+      <bean class="com.atlassian.bamboo.deployments.specs.RssDeploymentProjectPermissionHibernateDaoImpl">
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+
+</beans>
+

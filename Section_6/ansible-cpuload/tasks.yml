@@ -1,0 +1,5 @@
+- hosts: all
+  user: root
+  tasks:
+  - name: Get CPU Load
+    debug: msg="The CPU load for {{ ansible_hostname }} is {{ ansible_local.cpuload.cpu_load }}"

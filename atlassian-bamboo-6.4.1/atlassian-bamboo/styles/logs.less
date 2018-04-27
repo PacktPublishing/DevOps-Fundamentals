@@ -1,0 +1,75 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+.logs-table-container {
+    margin-top: 16px;
+    position: relative;
+}
+table.chain-logs-table.aui > caption {
+    font-size: 1em;
+    padding-left: 0;
+    padding-top: 0;
+}
+.chain-logs-table caption > span {
+    display: block;
+    text-align: left;
+}
+.chain-logs-table .twixie {
+    padding-left: 0;
+    padding-right: 0;
+    width: 16px;
+
+    > span {
+        cursor: pointer;
+    }
+
+    /* Expand/Collapse all */
+    > ul {
+        list-style: none;
+        margin: 0;
+        padding: 0 0.5em 0.5em;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        > li {
+            float: left;
+            line-height: 21px;
+            margin: 0;
+        }
+
+        > .expand-all {
+            margin-right: 10px;
+        }
+    }
+}
+
+/* Log content*/
+.chain-logs-table .collapsed + .log-trace {
+    display: none;
+}
+.chain-logs-table .log-trace .code {
+    background: #f9f9f9;
+    border-bottom: 2px solid #ccc;
+    border-top: 0;
+    color: #000;
+    overflow: visible;
+    padding: 0;
+
+    > div {
+        border-top: 1px dotted #ccc;
+        margin: 0;
+
+        table {
+            color: #000;
+            .monospace-font-mixin;
+            overflow: auto;
+            padding: 1.5em;
+
+            .time {
+                color: #505050;
+                padding: 0 8px 0 4px;
+                white-space: nowrap;
+            }
+        }
+    }
+}

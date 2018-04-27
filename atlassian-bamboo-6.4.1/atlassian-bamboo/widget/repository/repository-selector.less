@@ -1,0 +1,98 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+#source-repository {
+    label,
+    .description,
+    .field-value,
+    .error {
+        font-weight: normal;
+    }
+
+    .group {
+        padding-top: 0px;
+        padding-bottom: 0px;
+        margin-top: 0px;
+
+        .aui-group {
+            margin-top: 0px;
+        }
+    }
+
+    .field-group .aui-message {
+        font-weight: normal;
+    }
+
+    .repository-section {
+        margin-top: @baseSpacing;
+    }
+
+    .radio.single {
+        padding-left: 0px;
+
+        & > input,
+        & > label {
+            display: none;
+        }
+
+        & > .repository-section {
+            margin-top: 0px;
+        }
+    }
+
+    #repository-forms {
+        clear: both;
+
+        fieldset {
+            padding-top: 0px;
+
+            &.group.radio-group {
+                padding-left: 0;
+            }
+        }
+
+        h4 {
+            margin-bottom: 5px;
+        }
+
+        .aui-message {
+            margin-top: 4px;
+        }
+
+        .description {
+            margin-bottom: @baseSpacing;
+        }
+    }
+
+    #repository-display-name {
+        margin-top: @baseSpacing;
+        margin-bottom: @baseSpacing;
+    }
+
+    #repository-access-option {
+        legend {
+            float: left;
+            margin-left: -145px;
+            position: relative;
+            text-align: right;
+            width: 130px;
+            word-wrap: break-word;
+            line-height: 12px;
+
+            span {
+                padding: 0px;
+            }
+        }
+    }
+
+    #repository-selector {
+        .field-value {
+            padding-top: 0px;
+        }
+    }
+
+    #repository-selector-linked {
+        padding-top: @baseSpacing;
+        padding-bottom: @baseSpacing;
+    }
+}
+

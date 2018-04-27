@@ -1,0 +1,217 @@
+@import "plugin://bamboo.web.resources.common/global.less";
+
+@arrowLineRadius: @baseSpacing;
+@arrowSize: @baseSpacing;
+@arrowColour: @dividerColor;
+@firstArrowHeight: (@tripleSpacing * 2) + (@arrowLineRadius / 2);
+@statusWidth: @baseSpacing * 5;
+
+.deployment-project-description {
+    .box-sizing();
+    .text-overflow();
+    color: @secondaryTextColor;
+}
+#cloneProjectInfoSection > h3{
+    margin-top: 0;
+}
+form.aui span.field-value-normal-font {
+  font-weight: normal;
+}
+.configure-project-details {
+    border-bottom: 1px solid @dividerColor;
+    margin-bottom: @baseSpacing;
+    padding-bottom: @baseSpacing;
+
+    > .aui-toolbar {
+        padding-top: @baseSpacing;
+    }
+}
+.configure-project-environments {
+    .box-sizing();
+    margin-top: @doubleSpacing;
+    min-height: @firstArrowHeight + (@arrowSize * 2);
+    overflow: hidden;
+    padding: @doubleSpacing 0 0 (@doubleSpacing * 3);
+    position: relative;
+
+    &:before {
+        border-color: transparent transparent transparent @arrowColour;
+        border-style: solid;
+        border-width: @arrowSize 0 @arrowSize @arrowSize;
+        content: "";
+        left: @doubleSpacing * 2;
+        position: absolute;
+        top: @firstArrowHeight - (@arrowSize / 2) - (@arrowSize / 4);
+    }
+    &:after {
+        .border-bottom-left-radius(@arrowLineRadius);
+        border-color: transparent transparent @arrowColour @arrowColour;
+        border-style: solid;
+        border-width: @halfSpacing;
+        content: "";
+        height: @firstArrowHeight;
+        left: 0;
+        position: absolute;
+        top: -(@arrowLineRadius / 2);
+        width: @tripleSpacing + @halfSpacing;
+    }
+    > .new-environment:first-child {
+        margin-top: @doubleSpacing;
+    }
+}
+.configure-project-environment-list {
+    list-style: none;
+    max-width: 900px;
+    padding: 0;
+
+    &.miscellaneous-present {
+        max-width: 1000px;
+    }
+}
+.configure-project-environment {
+    @borderWidth: 1px;
+    @offsetArrowLineBottom: -70px;
+    .border-top-right-radius(@baseBorderRadius);
+    .border-bottom-right-radius(@baseBorderRadius);
+    border: @borderWidth solid @dividerColor;
+    position: relative;
+
+    &:before {
+        border-color: transparent transparent transparent @arrowColour;
+        border-style: solid;
+        border-width: @arrowSize 0 @arrowSize @arrowSize;
+        bottom: 0;
+        content: "";
+        left: -(@doubleSpacing + @borderWidth);
+        margin-bottom: @offsetArrowLineBottom - (@arrowSize / 2) - (@arrowSize / 4);
+        position: absolute;
+    }
+    &:after {
+        .border-bottom-left-radius(@arrowLineRadius);
+        border-color: transparent transparent @arrowColour @arrowColour;
+        border-style: solid;
+        border-width: @halfSpacing;
+        bottom: 0;
+        content: "";
+        left: -((@doubleSpacing * 3) + @borderWidth);
+        margin-bottom: @offsetArrowLineBottom;
+        position: absolute;
+        top: -(@arrowLineRadius / 2);
+        width: @tripleSpacing + @halfSpacing;
+    }
+    &:last-child {
+        &:before,
+        &:after {
+            content: normal;
+        }
+    }
+    & + .configure-project-environment {
+        margin-top: @doubleSpacing;
+    }
+    & > .aui-page-header {
+        padding: @baseSpacing @baseSpacing @baseSpacing (@statusWidth + @baseSpacing);
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 1;
+    }
+    & > div {
+        overflow: hidden;
+        padding: @baseSpacing @baseSpacing @baseSpacing (@statusWidth + @baseSpacing);
+        position: relative;
+
+        &:before {
+            .box-sizing();
+            background: @bodyBackgroundColor;
+            border-right: 1px solid @dividerColor;
+            bottom: 0;
+            content: "";
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: @statusWidth;
+        }
+        > h3,
+        > h4 {
+            display: inline-block;
+        }
+    }
+    .configure-project-environment-overview {
+        display: none;
+    }
+    .configure-project-environment-details .configure-project-environment-status-icon + .aui-toolbar2 {
+        margin-top: 0;
+
+        .aui-button {
+            margin-top: 0;
+        }
+    }
+    .configure-project-environment-overview,
+    .configure-project-environment-details {
+        padding-top: 50px;
+    }
+    .configure-project-environment-tasks,
+    .configure-project-environment-other {
+        border-top: 1px solid @dividerColor;
+    }
+    &.collapsed {
+        .configure-project-environment-overview {
+            display: block;
+        }
+        .configure-project-environment-details,
+        .configure-project-environment-tasks,
+        .configure-project-environment-other {
+            display: none;
+        }
+    }
+    .environment-edit {
+       margin-left: @baseSpacing;
+
+       &.hidden {
+           display: none;
+       }
+    }
+    .environment-description {
+        color: @secondaryTextColor;
+    }
+    &.selected {
+        background: @primaryHighlightColor;
+    }
+    .configuration-status-help {
+        color: @errorTextColor;
+        padding-left: @baseSpacing;
+    }
+}
+.configure-project-environment-status-lozenge {
+    margin-left: @baseSpacing;
+}
+.configure-project-environment-status-icon {
+    @iconSize: 32px;
+    left: (@statusWidth - @iconSize) / 2;
+    margin-top: -(@iconSize / 2);
+    position: absolute;
+    top: 50%;
+
+    &.aui-iconfont-approve {
+        color: @lozengeStartColor;
+    }
+    &.aui-iconfont-info {
+        color: @lozengeErrorColor;
+    }
+}
+
+.configure-project-environment-settings-toolbar{
+    white-space: nowrap;
+}
+
+form#permissions .buttons-container {
+    margin-top: @doubleSpacing;
+}
+.bamboo-iconfont-copy-clipboard {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiID4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NTAiIGhlaWdodD0iNTUwIj4KICAgIDxwYXRoIHRyYW5zZm9ybT0ic2NhbGUoMSAtMSkgdHJhbnNsYXRlKDAsIC00NTApIiBkPSJNOTYgMTYwdjMyaDIyNHYtMzJoLTIyNHpNOTYgOTZ2MzJoMjI0di0zMmgtMjI0ek05NiAzMnYzMmgyMjR2LTMyaC0yMjR6TTM1MiAyNTZ2MzJoNjR2LTMyaC02NHpNMzUyIDE5MnYzMmg2NHYtMzJoLTY0ek0zNTIgMTI4djMyaDY0di0zMmgtNjR6TTI4Ny45MzYgMzUydjBjNTMuMTg0NiAwIDk2LjIyNDYgLTQzLjAwNzggOTYuMjI0NiAtOTZ2LTIyNGMwIC01My4wNTU3IC00My4wNCAtOTYgLTk2LjI1NTkgLTk2aC0xNTkuNzQ0CmMtNTMuMTIwMSAwIC05Ni4xNjAyIDQyLjk0NDMgLTk2LjE2MDIgOTZ2MjI0YzAgNTIuOTkyMiA0My4wNCA5NiA5Ni4xNjAyIDk2aDE1OS43NzV6TTM1Mi4wOTYgMzJoLTAuMDMxMjV2MjI0YzAgMzUuMzI4MSAtMjguNzA0MSA2NCAtNjQuMTYwMiA2NGgtMTU5Ljc0NGMtMzUuMzkyNiAwIC02NC4xNjAyIC0yOC42NzE5IC02NC4xNjAyIC02NHYtMjI0YzAgLTM1LjM2MDQgMjguNzY3NiAtNjQgNjQuMTYwMiAtNjRoMTU5Ljc3NQpjMzUuNDU2MSAwIDY0LjE2MDIgMjguNjM5NiA2NC4xNjAyIDY0ek0xNjAuMDY0IDMyMHYwaC0zMi4wNjQ1djMyYzAgNTMuMDU1NyA0Mi43ODQyIDk2IDk2IDk2aDE1OS43NDRjNTMuMTUyMyAwIDk2LjI1NTkgLTQyLjk0NDMgOTYuMjU1OSAtOTZ2LTIyNGMwIC01Mi45OTIyIC00Mi42ODg1IC05NiAtOTUuODM5OCAtOTZoLTMyLjA2NDVsLTAuMDk1NzAzMSAzMmgzMmMzNS4zOTE2IDAgNjQgMjguNjcxOSA2NCA2NHYyMjQKYzAgMzUuMzYwNCAtMjguODMyIDY0IC02NC4yNTU5IDY0aC0xNTkuNzQ0Yy0zNS40ODgzIDAgLTYzLjkzNTUgLTI4LjYzOTYgLTYzLjkzNTUgLTY0di0zMnoiIC8+CiAgPC9zdmc+);
+  background-size: 16px 16px;
+  height: 16px;
+  opacity: 0.6;
+  width: 16px;
+}
