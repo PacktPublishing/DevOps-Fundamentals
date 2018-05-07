@@ -28,10 +28,11 @@ This video is for engineers and companies that want to learn the minimum set of 
 This video course also targets system administrators, developers, and IT professionals who would like to employ DevOps techniques and best practices to manage IT infrastructures or would like to acquire the necessary skills needed to work in DevOps teams.
 ### Technical Requirements
 This course has the following software requirements:<br/>
-Trial account on Google Cloud Platform
-Editor as well as Node.js
-Docker
-Google Container Engine (GKE)
+<UL>
+<LI>Trial account on Google Cloud Platform
+<LI>Editor as well as Node.js
+<LI>Docker
+<LI>Google Container Engine (GKE)</LI></UL>
 
 ## Related Products
 * [DevOps : Automate Your Infrastructure Using Ansible and IaC [Video]](https://www.packtpub.com/application-development/devops-automate-your-infrastructure-using-ansible-and-iac-video?utm_source=github&utm_medium=repository&utm_campaign=9781788994453)
