@@ -41,3 +41,7 @@ This course has the following software requirements:<br/>
 
 * [DevOps: CI/CD using AWS CodePipeline & Elastic Beanstalk [Video]](https://www.packtpub.com/web-development/devops-cicd-using-aws-codepipeline-elastic-beanstalk-video?utm_source=github&utm_medium=repository&utm_campaign=9781788395564)
 
+### Download a free PDF
+
+ <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
+<p align="center"> <a href="https://packt.link/free-ebook/9781789345742">https://packt.link/free-ebook/9781789345742 </a> </p>
